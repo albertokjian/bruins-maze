@@ -111,6 +111,10 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.create_wall(graphics_state, 32, 8, 1, Math.PI / 2, 0, 1, -32);
 
             // create some walls in between
+            this.create_wall(graphics_state, 8, 8, 1, 0, 0, 1, 3);
+            this.create_wall(graphics_state, 4, 8, 1, Math.PI / 2, 0, 1, 3);
+            this.create_wall(graphics_state, 8, 8, 1, 0, 3, 1, 15);
+            this.create_wall(graphics_state, 8, 8, 1, Math.PI / 2, 3, 1, 15);
         }
 
         display(graphics_state) {
