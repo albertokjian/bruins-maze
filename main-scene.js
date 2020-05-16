@@ -102,11 +102,13 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // create a floor to have the maze on 
             let floor_model_transform = Mat4.identity();
             floor_model_transform = floor_model_transform.times(Mat4.scale([32, 1, 32]));
-            this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.wall);
+            this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.sun);
 
             // create the 4 walls that surround the maze
-            // this.create_wall(graphics_state, 10, 2, 1, 0, 0, 0);
-
+            this.create_wall(graphics_state, 32, 8, 1, 0, 0, 1, 32);
+            this.create_wall(graphics_state, 32, 8, 1, 0, 0, 1, -32);
+            this.create_wall(graphics_state, 32, 8, 1, Math.PI / 2, 0, 1, 32);
+            this.create_wall(graphics_state, 32, 8, 1, Math.PI / 2, 0, 1, -32);
 
             // create some walls in between
         }
