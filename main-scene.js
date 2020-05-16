@@ -89,16 +89,26 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.key_triggered_button("View player", ["1"], () => this.attached = () => this.planet_1);
         }
 
-        // Use transformation matrics to properly position a wall of a given width, height, depth at x, y
-        create_wall(graphics_state, width, height, depth, x, y, z = 0) {
+        // Use transformation matrics to properly position a wall of a given width, height, depth at x, y, with specified rotation angle
+        create_wall(graphics_state, width, height, depth, angle, x, y, z = 0) {
             let model_transform = Mat4.identity();
+            model_transform = model_transform.times(Mat4.rotation(angle, Vec.of(0, 1, 0)));
             model_transform = model_transform.times(Mat4.scale([width, height, depth]));
             model_transform = model_transform.times(Mat4.translation([x, y, z]));
             this.shapes.wall.draw(graphics_state, model_transform, this.materials.wall);
         }
 
         create_maze(graphics_state) {
-            this.create_wall(graphics_state, 1, 1, 1, 0, 0);
+            // create a floor to have the maze on 
+            let floor_model_transform = Mat4.identity();
+            floor_model_transform = floor_model_transform.times(Mat4.scale([32, 1, 32]));
+            this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.wall);
+
+            // create the 4 walls that surround the maze
+            // this.create_wall(graphics_state, 10, 2, 1, 0, 0, 0);
+
+
+            // create some walls in between
         }
 
         display(graphics_state) {
