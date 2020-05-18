@@ -49,20 +49,25 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // Make some Material objects available to you:
             this.materials =
                 {
-                    sun: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
-                        ambient: 1,
+                    floor: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
+                        ambient: 0,
                         diffusivity: .7,
                         specular: 1.,
                         gouraud: true,
                     }),
+                    player: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
+                        ambient: .8,
+                        diffusivity: .7,
+                        specular: .5,
+                        gouraud: true,
+                    }),
                     wall: context.get_instance(Phong_Shader).material(Color.of(1, 1, 1, 1), {
-                        ambient: .4,
+                        ambient: 0,
                         diffusivity: .4,
                         specularity: .6,
                     })
                 };
-
-            this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(1, 0, 0, 1), 1000)];
+            this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
             this.attached = () => this.initial_camera_location;
         }
 
@@ -83,16 +88,10 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         }
 
         create_maze(graphics_state) {
-            // create a dummy player
-            let player_model_transform = Mat4.identity();
-            player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 6, this.dim - 8]))
-            player_model_transform = player_model_transform.times(Mat4.scale([6,6,6]))
-            this.shapes.player.draw(graphics_state, player_model_transform, this.materials.sun)
-
             // create a floor to have the maze on 
             let floor_model_transform = Mat4.identity();
             floor_model_transform = floor_model_transform.times(Mat4.scale([this.dim, 1, this.dim]));
-            this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.sun);
+            this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.floor);
 
             // create the 4 walls that surround the maze
             this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, this.dim);
@@ -105,6 +104,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.create_wall(graphics_state, 4, 8, 1, Math.PI / 2, 0, 1, 3);
             this.create_wall(graphics_state, 8, 8, 1, 0, 3, 1, 15);
             this.create_wall(graphics_state, 8, 8, 1, Math.PI / 2, 3, 1, 15);
+
         }
 
         display(graphics_state) {
@@ -112,5 +112,24 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             const t = graphics_state.animation_time / 1000;
 
             this.create_maze(graphics_state);
+            
+            // create a dummy player 
+            let player_model_transform = Mat4.identity();
+            player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 3, this.dim - 8]));
+            player_model_transform = player_model_transform.times(Mat4.scale([2,2,2]));
+
+            // TODO: change camera location to be front view
+            this.player_camera_location = player_model_transform;
+            let player_vec = player_model_transform.times(Vec.of(0,0,0,1));
+
+            // light comes from within the player
+            this.lights[0].position = player_vec;
+            this.shapes.player.draw(graphics_state, player_model_transform, this.materials.player);
+
+            if (typeof this.attached === "function") {
+                let desired = this.attached();
+                desired = Mat4.inverse(desired);
+                graphics_state.camera_transform = desired.map((x, i) => Vec.from(graphics_state.camera_transform[i]).mix(x, .1));
+            }
         }
     };
