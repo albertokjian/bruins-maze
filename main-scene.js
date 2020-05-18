@@ -33,39 +33,26 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             if (!context.globals.has_controls)
                 context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
 
-            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0, 10, 20), Vec.of(0, 0, 0), Vec.of(0, 1, 0));
-            this.initial_camera_location = Mat4.inverse(context.globals.graphics_state.camera_transform);
+            this.dim = 32;
 
+            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0,4*this.dim,0), Vec.of(0,0,0), Vec.of(1,0,0));
+            this.initial_camera_location = Mat4.inverse(context.globals.graphics_state.camera_transform);
             const r = context.width / context.height;
             context.globals.graphics_state.projection_transform = Mat4.perspective(Math.PI / 4, r, .1, 1000);
 
             const shapes = {
-                torus: new Torus(15, 15),
-                torus2: new (Torus.prototype.make_flat_shaded_version())(15, 15),
+                player: new (Subdivision_Sphere)(4),
                 wall: new Cube(),
-
-                // TODO:  Fill in shapes for sun and planet 1
-                sun_1: new (Subdivision_Sphere)(4),
-                sun_2: new (Subdivision_Sphere.prototype.make_flat_shaded_version())(2),
-                planet1: new (Subdivision_Sphere.prototype.make_flat_shaded_version())(2)
             };
             this.submit_shapes(context, shapes);
 
             // Make some Material objects available to you:
             this.materials =
                 {
-                    test: context.get_instance(Phong_Shader).material(Color.of(1, 1, 0, 1), {ambient: .2}),
-                    // TODO:  Fill the the materials for sun and planet 1
                     sun: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
                         ambient: 1,
                         diffusivity: .7,
                         specular: 1.,
-                        gouraud: true,
-                    }),
-                    planet1: context.get_instance(Phong_Shader).material(Color.of(.9, .9, .9, 1), {
-                        ambient: .5,
-                        diffusivity: .7,
-                        specular: 1,
                         gouraud: true,
                     }),
                     wall: context.get_instance(Phong_Shader).material(Color.of(1, 1, 1, 1), {
@@ -75,10 +62,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     })
                 };
 
-            // TODO: Change the light position
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(1, 0, 0, 1), 1000)];
-
-            // TODO: Initialize attached function
             this.attached = () => this.initial_camera_location;
         }
 
@@ -86,7 +70,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
             this.key_triggered_button("View entire maze", ["0"], () => this.attached = () => this.initial_camera_location);
             this.new_line();
-            this.key_triggered_button("View player", ["1"], () => this.attached = () => this.planet_1);
+            this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player_camera_location);
         }
 
         // Use transformation matrics to properly position a wall of a given width, height, depth at x, y, with specified rotation angle
@@ -99,16 +83,22 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         }
 
         create_maze(graphics_state) {
+            // create a dummy player
+            let player_model_transform = Mat4.identity();
+            player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 6, this.dim - 8]))
+            player_model_transform = player_model_transform.times(Mat4.scale([6,6,6]))
+            this.shapes.player.draw(graphics_state, player_model_transform, this.materials.sun)
+
             // create a floor to have the maze on 
             let floor_model_transform = Mat4.identity();
-            floor_model_transform = floor_model_transform.times(Mat4.scale([32, 1, 32]));
+            floor_model_transform = floor_model_transform.times(Mat4.scale([this.dim, 1, this.dim]));
             this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.sun);
 
             // create the 4 walls that surround the maze
-            this.create_wall(graphics_state, 32, 8, 1, 0, 0, 1, 32);
-            this.create_wall(graphics_state, 32, 8, 1, 0, 0, 1, -32);
-            this.create_wall(graphics_state, 32, 8, 1, Math.PI / 2, 0, 1, 32);
-            this.create_wall(graphics_state, 32, 8, 1, Math.PI / 2, 0, 1, -32);
+            this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, this.dim);
+            this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, -this.dim);
+            this.create_wall(graphics_state, this.dim, 8, 1, Math.PI / 2, 0, 1, this.dim);
+            this.create_wall(graphics_state, this.dim, 8, 1, Math.PI / 2, 0, 1, -this.dim);
 
             // create some walls in between
             this.create_wall(graphics_state, 8, 8, 1, 0, 0, 1, 3);
