@@ -67,15 +67,39 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                         specularity: .6,
                     })
                 };
+            this.player_model_transform = this.init_player_location();
+
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
             this.attached = () => this.initial_camera_location;
         }
-
+        init_player_location() {
+            let player_model_transform = Mat4.identity();
+            player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 3, this.dim - 8]));
+            player_model_transform = player_model_transform.times(Mat4.scale([2,2,2]));
+            return player_model_transform
+        }
         make_control_panel() {
             // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
             this.key_triggered_button("View entire maze", ["0"], () => this.attached = () => this.initial_camera_location);
             this.new_line();
             this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player_camera_location);
+            this.new_line();
+            this.key_triggered_button("Move Up", ["w"], () => {
+                this.player_model_transform = this.player_model_transform.times(Mat4.translation([3, 0, 0]));
+            });
+            this.new_line();
+            this.key_triggered_button("Move Down", ["s"], () => {
+                this.player_model_transform = this.player_model_transform.times(Mat4.translation([-3, 0, 0]));
+            });
+            this.new_line();
+            this.key_triggered_button("Move Left", ["a"], () => {
+                this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -3]));
+            });
+            this.new_line();
+            this.key_triggered_button("Move Forward", ["d"], () => {
+                this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, 3]));
+            });
+
         }
 
         // Use transformation matrics to properly position a wall of a given width, height, depth at x, y, with specified rotation angle
@@ -113,18 +137,13 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
 
             this.create_maze(graphics_state);
             
-            // create a dummy player 
-            let player_model_transform = Mat4.identity();
-            player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 3, this.dim - 8]));
-            player_model_transform = player_model_transform.times(Mat4.scale([2,2,2]));
-
             // TODO: change camera location to be front view
-            this.player_camera_location = player_model_transform;
-            let player_vec = player_model_transform.times(Vec.of(0,0,0,1));
+            this.player_camera_location = this.player_model_transform;
+            let player_vec = this.player_model_transform.times(Vec.of(0,0,0,1));
 
             // light comes from within the player
             this.lights[0].position = player_vec;
-            this.shapes.player.draw(graphics_state, player_model_transform, this.materials.player);
+            this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
 
             if (typeof this.attached === "function") {
                 let desired = this.attached();
