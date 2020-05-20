@@ -35,7 +35,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
 
             this.dim = 32;
 
-            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0,4*this.dim,0), Vec.of(0,0,0), Vec.of(1,0,0));
+            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0,4*this.dim,0), Vec.of(0,0,0), Vec.of(0,0,-1));
             this.initial_camera_location = Mat4.inverse(context.globals.graphics_state.camera_transform);
             const r = context.width / context.height;
             context.globals.graphics_state.projection_transform = Mat4.perspective(Math.PI / 4, r, .1, 1000);
@@ -68,7 +68,14 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     })
                 };
             this.player_model_transform = this.init_player_location();
-
+            this.directions = {
+                UP: 'up',
+                DOWN: 'down',
+                LEFT: 'left',
+                RIGHT: 'right',
+                STILL:'still'
+            }
+            this.currrent_direction = this.directions.STILL;
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
             this.attached = () => this.initial_camera_location;
         }
@@ -85,20 +92,25 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player_camera_location);
             this.new_line();
             this.key_triggered_button("Move Up", ["w"], () => {
-                this.player_model_transform = this.player_model_transform.times(Mat4.translation([3, 0, 0]));
+                this.currrent_direction = this.directions.UP;
             });
             this.new_line();
             this.key_triggered_button("Move Down", ["s"], () => {
-                this.player_model_transform = this.player_model_transform.times(Mat4.translation([-3, 0, 0]));
+                this.currrent_direction = this.directions.DOWN;
             });
             this.new_line();
             this.key_triggered_button("Move Left", ["a"], () => {
-                this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -3]));
+                this.currrent_direction = this.directions.LEFT;
             });
             this.new_line();
-            this.key_triggered_button("Move Forward", ["d"], () => {
-                this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, 3]));
+            this.key_triggered_button("Move Right", ["d"], () => {
+                this.currrent_direction = this.directions.RIGHT;
             });
+            this.new_line();
+            this.key_triggered_button("Stay still", ["z"], () => {
+                this.currrent_direction = this.directions.STILL;
+            });
+
 
         }
 
@@ -108,7 +120,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             model_transform = model_transform.times(Mat4.rotation(angle, Vec.of(0, 1, 0)));
             model_transform = model_transform.times(Mat4.scale([width, height, depth]));
             model_transform = model_transform.times(Mat4.translation([x, y, z]));
-            this.shapes.wall.draw(graphics_state, model_transform, this.materials.wall);
+            this.shapes.wall.draw(graphics_state,model_transform, this.materials.wall);
         }
 
         create_maze(graphics_state) {
@@ -130,7 +142,25 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.create_wall(graphics_state, 8, 8, 1, Math.PI / 2, 3, 1, 15);
 
         }
-
+        draw_player(graphics_state, t) {
+            t = t/100;
+            switch (this.currrent_direction) {
+                case this.directions.UP:
+                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -t]));
+                    break;
+                case this.directions.DOWN:
+                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, t]));
+                    break;
+                case this.directions.LEFT:
+                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([-t, 0, 0]));
+                    break;
+                case this.directions.RIGHT:
+                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([t, 0,0]));
+                default:
+                    break;
+            }
+            this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
+        }
         display(graphics_state) {
             graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
             const t = graphics_state.animation_time / 1000;
@@ -143,7 +173,8 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
 
             // light comes from within the player
             this.lights[0].position = player_vec;
-            this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
+            this.draw_player(graphics_state,t);
+            // this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
 
             if (typeof this.attached === "function") {
                 let desired = this.attached();
