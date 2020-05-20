@@ -27,21 +27,21 @@ window.Cube = window.classes.Cube =
 
 window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
     class Trapped_Maze_Scene extends Scene_Component {
-        constructor(context, control_box)     // The scene begins by requesting the camera, shapes, and materials it will need.
+        constructor(context, control_box) // The scene begins by requesting the camera, shapes, and materials it will need.
         {
-            super(context, control_box);    // First, include a secondary Scene that provides movement controls:
+            super(context, control_box); // First, include a secondary Scene that provides movement controls:
             if (!context.globals.has_controls)
                 context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
 
-            this.dim = 32;
-
-            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0,4*this.dim,0), Vec.of(0,0,0), Vec.of(0,0,-1));
+            this.maze = new Maze();
+            this.dim = this.maze.dim;
+            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0, 4 * this.dim, 0), Vec.of(0, 0, 0), Vec.of(0, 0, -1));
             this.initial_camera_location = Mat4.inverse(context.globals.graphics_state.camera_transform);
             const r = context.width / context.height;
             context.globals.graphics_state.projection_transform = Mat4.perspective(Math.PI / 4, r, .1, 1000);
 
             const shapes = {
-                player: new (Subdivision_Sphere)(4),
+                player: new(Subdivision_Sphere)(4),
                 wall: new Cube(),
             };
             this.submit_shapes(context, shapes);
@@ -126,21 +126,38 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         create_maze(graphics_state) {
             // create a floor to have the maze on 
             let floor_model_transform = Mat4.identity();
-            floor_model_transform = floor_model_transform.times(Mat4.scale([this.dim, 1, this.dim]));
+            floor_model_transform = floor_model_transform.times(Mat4.translation([0, -1/2, 0]));
+            floor_model_transform = floor_model_transform.times(Mat4.scale([this.dim, 1/2, this.dim]));
             this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.floor);
+            let scale = this.maze.wall_length + this.maze.depth
+            for (let i = 0; i < this.maze.walls.length; i++) {
+                const str = this.maze.walls[i];
+                for (let j = 0; j < str.length; j++) {
+                    switch (str[j]) {
+                        case '+':
+                            this.create_wall(graphics_state, this.maze.depth, this.maze.height, this.maze.depth, 0,
+                                -this.maze.width / 2 + i * scale / this.maze.depth, 1,
+                                -this.maze.length / 2 + j * scale / this.maze.depth);
+                            break;
+                        case '-':
+                            this.create_wall(graphics_state, this.maze.depth, this.maze.height, this.maze.wall_length, 0,
+                                this.maze.width / 2 - i * scale, this.maze.height / 2,
+                                this.maze.length / 2 - j * scale);
+                            break;
+                    }
+                }
+            }
+            // // create the 4 walls that surround the maze
+            // this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, this.dim);
+            // this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, -this.dim);
+            // this.create_wall(graphics_state, this.dim, 8, 1, Math.PI / 2, 0, 1, this.dim);
+            // this.create_wall(graphics_state, this.dim, 8, 1, Math.PI / 2, 0, 1, -this.dim);
 
-            // create the 4 walls that surround the maze
-            this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, this.dim);
-            this.create_wall(graphics_state, this.dim, 8, 1, 0, 0, 1, -this.dim);
-            this.create_wall(graphics_state, this.dim, 8, 1, Math.PI / 2, 0, 1, this.dim);
-            this.create_wall(graphics_state, this.dim, 8, 1, Math.PI / 2, 0, 1, -this.dim);
-
-            // create some walls in between
-            this.create_wall(graphics_state, 8, 8, 1, 0, 0, 1, 3);
-            this.create_wall(graphics_state, 4, 8, 1, Math.PI / 2, 0, 1, 3);
-            this.create_wall(graphics_state, 8, 8, 1, 0, 3, 1, 15);
-            this.create_wall(graphics_state, 8, 8, 1, Math.PI / 2, 3, 1, 15);
-
+            // // create some walls in between
+            // this.create_wall(graphics_state, 8, 8, 1, 0, 0, 1, 3);
+            // this.create_wall(graphics_state, 4, 8, 1, Math.PI / 2, 0, 1, 3);
+            // this.create_wall(graphics_state, 8, 8, 1, 0, 3, 1, 15);
+            // this.create_wall(graphics_state, 8, 8, 1, Math.PI / 2, 3, 1, 15);
         }
         draw_player(graphics_state, t) {
             t = t/100;
@@ -162,7 +179,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
         }
         display(graphics_state) {
-            graphics_state.lights = this.lights;        // Use the lights stored in this.lights.
+            graphics_state.lights = this.lights; // Use the lights stored in this.lights.
             const t = graphics_state.animation_time / 1000;
 
             this.create_maze(graphics_state);
