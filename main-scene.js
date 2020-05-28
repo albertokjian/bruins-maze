@@ -283,9 +283,8 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             let pz = this.player.position.z;
             // console.log(this.wall_positions)
             let collision = player_collide_with_walls(px, pz, this.wall_positions,0,3.5);
-            // this.in_collision = false;
-            // this.in_collision = (this.c<6);
-            this.player.updatePlayer(collision, this.in_collision, dt);
+            let collide_on_surface = player_collide_on_surface(px, pz, this.wall_positions,0,3.5);
+            this.player.updatePlayer(collision, this.in_collision, collide_on_surface, dt);
             this.in_collision = collision;
             this.draw_player(graphics_state,dt);
             console.log("speed",this.player.velocity);
