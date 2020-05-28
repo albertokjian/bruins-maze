@@ -1,30 +1,3 @@
-// Cube definition given in Assignment 2 template code
-window.Cube = window.classes.Cube =
-    class Cube extends Shape {
-        constructor() {
-            super("positions", "normals"); // Name the values we'll define per each vertex.  They'll have positions and normals.
-
-            // First, specify the vertex positions -- just a bunch of points that exist at the corners of an imaginary cube.
-            this.positions.push(...Vec.cast(
-                [-1, -1, -1], [1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, -1], [-1, 1, -1], [1, 1, 1], [-1, 1, 1],
-                [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1], [1, -1, 1], [1, -1, -1], [1, 1, 1], [1, 1, -1],
-                [-1, -1, 1], [1, -1, 1], [-1, 1, 1], [1, 1, 1], [1, -1, -1], [-1, -1, -1], [1, 1, -1], [-1, 1, -1]));
-            // Supply vectors that point away from eace face of the cube.  They should match up with the points in the above list
-            // Normal vectors are needed so the graphics engine can know if the shape is pointed at light or not, and color it accordingly.
-            this.normals.push(...Vec.cast(
-                [0, -1, 0], [0, -1, 0], [0, -1, 0], [0, -1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0],
-                [-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0],
-                [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, -1], [0, 0, -1], [0, 0, -1], [0, 0, -1]));
-
-            // Those two lists, positions and normals, fully describe the "vertices".  What's the "i"th vertex?  Simply the combined
-            // data you get if you look up index "i" of both lists above -- a position and a normal vector, together.  Now let's
-            // tell it how to connect vertex entries into triangles.  Every three indices in this list makes one triangle:
-            this.indices.push(0, 1, 2, 1, 3, 2, 4, 5, 6, 5, 7, 6, 8, 9, 10, 9, 11, 10, 12, 13,
-                14, 13, 15, 14, 16, 17, 18, 17, 19, 18, 20, 21, 22, 21, 23, 22);
-            // It stinks to manage arrays this big.  Later we'll show code that generates these same cube vertices more automatically.
-        }
-    };
-
 window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
     class Trapped_Maze_Scene extends Scene_Component {
         constructor(context, control_box) // The scene begins by requesting the camera, shapes, and materials it will need.
@@ -43,6 +16,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             const shapes = {
                 player: new(Subdivision_Sphere)(4),
                 wall: new Cube(),
+                axis: new Axis_Arrows()
             };
             this.submit_shapes(context, shapes);
 
@@ -69,6 +43,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     })
                 };
             this.player_model_transform = this.init_player_location();
+            this.player_position = [0,0,0];
             this.directions = {
                 UP: 'up',
                 DOWN: 'down',
@@ -79,6 +54,13 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.current_time = 0;
             this.currrent_direction = this.directions.STILL;
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
+            this.wall_positions = [];
+            this.store_walls_pos();
+            this.c=0;
+
+
+            this.model_transform = MODEL_TRANSFORM
+            this.player = new Player();
             this.attached = () => this.initial_camera_location;
         }
         init_player_location() {
@@ -95,36 +77,46 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.new_line();
             this.key_triggered_button("Move Up", ["i"], () => {
                 this.currrent_direction = this.directions.UP;
+                console.log(this.wall_positions[0])
+                console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Move Down", ["k"], () => {
                 this.currrent_direction = this.directions.DOWN;
+                console.log(this.wall_positions[0])
+                console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Move Left", ["j"], () => {
                 this.currrent_direction = this.directions.LEFT;
+                console.log(this.wall_positions[0])
+                console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Move Right", ["l"], () => {
                 this.currrent_direction = this.directions.RIGHT;
+                console.log(this.wall_positions[0])
+                console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Stay still", ["m"], () => {
                 this.currrent_direction = this.directions.STILL;
+                console.log(this.wall_positions[0])
+                console.log(this.player_position);
             });
 
 
         }
 
-        // Use transformation matrics to properly position a wall of a given width, height, depth at x, y, with specified rotation angle
+        // Use transformation matrices to properly position a wall of a given width, height, depth at x, y, with specified rotation angle
         create_wall(graphics_state, xscale, yscale, zscale, angle, x, y, z = 0) {
-            let model_transform = Mat4.identity();
-
+            let model_transform = this.model_transform;
+            model_transform = model_transform.times(Mat4.scale([1, 1, -1]));
             // M = T(x,y,z) * Ry(angle) * S(scalex, scaley, scalez)
             model_transform = model_transform.times(Mat4.translation([x, y, z]));
             model_transform = model_transform.times(Mat4.rotation(angle, Vec.of(0, 1, 0)));
             model_transform = model_transform.times(Mat4.scale([xscale, yscale, zscale]));
-        
+            // push 4 coordinates of wall into array, counterclockwise from bottom left
             // Make 1x1x1 unit cube
             model_transform = model_transform.times(Mat4.scale([.5, .5, .5]));
             // translate walls up one, so the 2x2 cube is entirely on positive y 
@@ -133,7 +125,97 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             model_transform = model_transform.times(Mat4.translation([0, 1, 0]));
             this.shapes.wall.draw(graphics_state,model_transform, this.materials.wall);
         }
-        
+
+        store_a_wall_pos( xscale, yscale, zscale, angle, x, y, z) {
+            let model_transform = Mat4.identity();
+
+            // M = T(x,y,z) * Ry(angle) * S(scalex, scaley, scalez)
+            model_transform = model_transform.times(Mat4.translation([x, 0, z]));
+            model_transform = model_transform.times(Mat4.rotation(angle, Vec.of(0, 1, 0)));
+            model_transform = model_transform.times(Mat4.scale([xscale, 1, zscale]));
+
+            // Make 1x1x1 unit cube
+            model_transform = model_transform.times(Mat4.scale([.5, .5, .5]));
+            // translate walls up one, so the 2x2 cube is entirely on positive y
+            // imagine the original 2x2 was only entirely on positive y
+            // but identity means it is moved down y is [-1, 1], so move it back up
+            model_transform = model_transform.times(Mat4.translation([0, 1, 0]));
+
+            let coord_arr = [[-1,1], [1,1], [-1,-1], [1,-1]];
+            let new_coord_arr = [];
+            for (const xz of coord_arr) {
+                let new_coord = model_transform.times(Vec.of(xz[0], 10, xz[1], 1));
+                new_coord_arr.push({x:new_coord[0],z:new_coord[2]})
+            }
+            this.wall_positions.push({
+                bl:{x:new_coord_arr[0].x,z:new_coord_arr[0].z},
+                br:{x:new_coord_arr[1].x,z:new_coord_arr[1].z},
+                tl:{x:new_coord_arr[2].x,z:new_coord_arr[2].z},
+                tr:{x:new_coord_arr[3].x,z:new_coord_arr[3].z}})
+        }
+
+        store_walls_pos(){
+            for (let z_index = 0; z_index < this.maze.walls.length; z_index++) {
+                const str = this.maze.walls[z_index];
+                for (let x_index = 0; x_index < str.length; x_index++) {
+                    let x = -this.maze.xspan / 2 + x_index / 2 * this.maze.seperation;
+                    let z = -this.maze.zspan / 2 + z_index / 2 * this.maze.seperation;
+                    switch (str[x_index]) {
+                        case '+':
+                            // x_index and z_index is guarante
+                            this.store_a_wall_pos( this.maze.thickness, this.maze.yspan, this.maze.thickness, 0, x, 0 ,z);
+                            break;
+                        case '-':
+                            this.store_a_wall_pos( this.maze.wall_length, this.maze.yspan, this.maze.thickness, 0, x, 0 ,z);
+                            break;
+                        case '|':
+                            this.store_a_wall_pos( this.maze.thickness, this.maze.yspan, this.maze.wall_length, 0, x, 0 ,z);
+                            break;
+                    }
+                }
+            }
+        }
+        player_collide_with_a_side(p1,p2){
+            var radius = 0.1;
+            var player_x = this.player_position[0];
+            var player_z = this.player_position[2];
+            var side1 = Math.sqrt(Math.pow(player_x - p1.x,2) + Math.pow(player_z - p1.z,2)); // Thats the pythagoras theoram If I can spell it right
+            var side2 = Math.sqrt(Math.pow(player_x - p2.x,2) + Math.pow(player_z - p2.z,2));
+            var base = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.z - p1.z,2));
+            if(radius > side1 || radius > side2)
+                return true;
+            var angle1 = Math.atan2( p2.x - p1.x, p2.z - p1.z ) - Math.atan2( player_x - p1.x, player_z - p1.z ); // Some complicated Math
+            var angle2 = Math.atan2( p1.x - p2.x, p1.z - p2.z ) - Math.atan2( player_x - p2.x, player_z - p2.z ); // Some complicated Math again
+            if(angle1 > Math.PI / 2 || angle2 > Math.PI / 2) // Making sure if any angle is an obtuse one and Math.PI / 2 = 90 deg
+                return false;
+
+            // Now if none are true then
+            var semiperimeter = (side1 + side2 + base) / 2;
+            var areaOfTriangle = Math.sqrt( semiperimeter * (semiperimeter - side1) * (semiperimeter - side2) * (semiperimeter - base) ); // Heron's formula for the area
+            var height = 2*areaOfTriangle/base;
+            if( height < radius )
+                return true;
+            else
+                return false;
+        }
+        player_collide_with_a_wall(wall_item) {
+            // now hardcoded to 4.
+            var collide_bottom = this.player_collide_with_a_side(wall_item.bl,wall_item.br);
+            if (collide_bottom) { console.log("Collide Bottom.")}
+            var collide_top = this.player_collide_with_a_side(wall_item.tl,wall_item.tr);
+            if (collide_top) { console.log("Collide Top.")}
+            var collide_left = this.player_collide_with_a_side(wall_item.bl,wall_item.tl);
+            if (collide_left) { console.log("Collide Left.")}
+            var collide_right = this.player_collide_with_a_side(wall_item.br,wall_item.tr);
+            if (collide_right) { console.log("Collide Right.")}
+
+        }
+        player_collide_with_walls(){
+            var wall_item;
+            for (wall_item of this.wall_positions) {
+                this.player_collide_with_a_wall(wall_item);
+            }
+        }
         // TODO, read maze only once! store necessary information at the beginning
         create_maze(graphics_state) {
             for (let z_index = 0; z_index < this.maze.walls.length; z_index++) {
@@ -156,52 +238,54 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                 }
             }
         }
+
         draw_player(graphics_state, t) {
-            let speed = 5 * t;
-            switch (this.currrent_direction) {
-                case this.directions.UP:
-                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -speed]));
-                    break;
-                case this.directions.DOWN:
-                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, speed]));
-                    break;
-                case this.directions.LEFT:
-                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([-speed, 0, 0]));
-                    break;
-                case this.directions.RIGHT:
-                    this.player_model_transform = this.player_model_transform.times(Mat4.translation([speed, 0,0]));
-                default:
-                    break;
-            }
-            this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
+            // let speed = 0.05 ;
+            // switch (this.currrent_direction) {
+            //     case this.directions.UP:
+            //         this.player_position[2] += -speed;
+            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -speed]));
+            //         break;
+            //     case this.directions.DOWN:
+            //         this.player_position[2] += speed;
+            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, speed]));
+            //         break;
+            //     case this.directions.LEFT:
+            //         this.player_position[0] += -speed;
+            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([-speed, 0, 0]));
+            //         break;
+            //     case this.directions.RIGHT:
+            //         this.player_position[0] += speed;
+            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([speed, 0,0]));
+            //     default:
+            //         break;
+            // }
+
+            this.shapes.player.draw(graphics_state, this.player.getPlayerLModel(), this.materials.player);
         }
         display(graphics_state) {
             graphics_state.lights = this.lights; // Use the lights stored in this.lights.
-            const t = graphics_state.animation_time / 1000;
+            const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
 
 
             // create a floor to have the maze on 
-            let floor_model_transform = Mat4.identity();
+            let floor_model_transform = this.model_transform;
             floor_model_transform = floor_model_transform.times(Mat4.translation([0, -1/2, 0]));
             floor_model_transform = floor_model_transform.times(Mat4.scale([this.maze.zspan / 2, 1/2, this.maze.xspan / 2]));
             this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.floor);
-
+            this.shapes.axis.draw(graphics_state,this.model_transform.times(Mat4.translation([0,10,0])),this.materials.player);
             this.create_maze(graphics_state);
-            
-            // TODO: change camera location to be front view
-            this.player_camera_location = this.player_model_transform;
-            let player_vec = this.player_model_transform.times(Vec.of(0,0,0,1));
-
-            // light comes from within the player
-            this.lights[0].position = player_vec;
+            //
+            // // TODO: change camera location to be front view
+            // this.player_camera_location = this.player_model_transform;
+            // let player_vec = this.player_model_transform.times(Vec.of(0,0,0,1));
+            //
+            // // light comes from within the player
+            // this.lights[0].position = player_vec;
+            // this.player_collide_with_walls();
+            this.player.updatePlayer(t-this.current_time);
             this.draw_player(graphics_state,t-this.current_time);
-            // this.shapes.player.draw(graphics_state, this.player_model_transform, this.materials.player);
-
-            // if (typeof this.attached === "function") {
-            //     let desired = this.attached();
-            //     desired = Mat4.inverse(desired);
-            //     graphics_state.camera_transform = desired.map((x, i) => Vec.from(graphics_state.camera_transform[i]).mix(x, .1));
-            // }
-            this.current_time = t;
+            // console.log("dt:",dt);
+            // this.current_time = t;
         }
     };
