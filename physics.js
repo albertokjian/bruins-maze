@@ -11,3 +11,7 @@ function UpdateLocation(x0, v0, a, dt){
 function ApplyCollision(v){
     return {x:-COLLISION_SPEED*v.x,y:-COLLISION_SPEED*v.y,z:-COLLISION_SPEED*v.z}
 }
+
+function ApplyFriction(x){
+    return FRICTION*x;
+}

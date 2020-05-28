@@ -40,6 +40,7 @@ window.Player = window.classes.Player =
                 console.log("surface!!!!!")
                 this.velocity.z = 0;
                 this.acceleration.z = 0;
+                this.velocity.x = ApplyFriction(this.velocity.x);
             } else if (collision && !in_collision) {
                 this.velocity = ApplyCollision(this.velocity);
             } else {

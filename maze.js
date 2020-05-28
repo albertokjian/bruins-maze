@@ -23,7 +23,7 @@ window.Maze = window.classes.Maze =
                 "+   +-+-+",
                 "|   |   |",
                 "+ +-+-+-+",
-                "| |     |",
+                "|       |",
                 "+-+-+-+-+"
             ];
             // this.walls = [
