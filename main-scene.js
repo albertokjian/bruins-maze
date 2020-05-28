@@ -61,6 +61,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.store_walls_pos();
             this.c=0;
             this.player = new Player();
+            this.in_collision = false;
             this.attached = () => this.initial_camera_location;
         }
         // init_player_location() {
@@ -77,32 +78,32 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.new_line();
             this.key_triggered_button("Move Up", ["i"], () => {
                 this.currrent_direction = this.directions.UP;
-                console.log(this.wall_positions[0])
-                console.log(this.player_position);
+                // console.log(this.wall_positions[0])
+                // console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Move Down", ["k"], () => {
                 this.currrent_direction = this.directions.DOWN;
-                console.log(this.wall_positions[0])
-                console.log(this.player_position);
+                // console.log(this.wall_positions[0])
+                // console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Move Left", ["j"], () => {
                 this.currrent_direction = this.directions.LEFT;
-                console.log(this.wall_positions[0])
-                console.log(this.player_position);
+                // console.log(this.wall_positions[0])
+                // console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Move Right", ["l"], () => {
                 this.currrent_direction = this.directions.RIGHT;
-                console.log(this.wall_positions[0])
-                console.log(this.player_position);
+                // console.log(this.wall_positions[0])
+                // console.log(this.player_position);
             });
             this.new_line();
             this.key_triggered_button("Stay still", ["m"], () => {
                 this.currrent_direction = this.directions.STILL;
-                console.log(this.wall_positions[0])
-                console.log(this.player_position);
+                // console.log(this.wall_positions[0])
+                // console.log(this.player_position);
             });
 
 
@@ -278,10 +279,16 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             //
             // // light comes from within the player
             // this.lights[0].position = player_vec;
-            // this.player_collide_with_walls();
-            this.player.updatePlayer(dt);
+            let px = this.player.position.x;
+            let pz = this.player.position.z;
+            // console.log(this.wall_positions)
+            let collision = player_collide_with_walls(px, pz, this.wall_positions,0,3.5);
+            // this.in_collision = false;
+            // this.in_collision = (this.c<6);
+            this.player.updatePlayer(collision, this.in_collision, dt);
+            this.in_collision = collision;
             this.draw_player(graphics_state,dt);
-            // console.log("z-speed,z-acc:",this.player.velocity.z,this.player.acceleration.z);
+            console.log("speed",this.player.velocity);
             // this.current_time = t;
         }
     };

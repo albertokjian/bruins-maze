@@ -28,18 +28,23 @@ window.Player = window.classes.Player =
         resetSpeed(){
             this.velocity = velocity;
         }
-        updatePlayer(dt) {
+        updatePlayer(collision,in_collision, dt) {
             // Update player location.
             let nx = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
             let nz = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
             this.position.x = nx;
             this.position.z = nz;
-
-            // Update player speed.
-            let nvx = UpdateVelocity(this.velocity.x, this.acceleration.x, dt);
-            let nvz =  UpdateVelocity(this.velocity.z, this.acceleration.z, dt);
-            this.velocity.x = nvx;
-            this.velocity.z = nvz;
+            // Update on collision.
+            if (collision && !in_collision) {
+                this.velocity.x = -.8*this.velocity.x;
+                this.velocity.z = -.8*this.velocity.z;
+            } else {
+                // Update player speed.
+                let nvx = UpdateVelocity(this.velocity.x, this.acceleration.x, dt);
+                let nvz =  UpdateVelocity(this.velocity.z, this.acceleration.z, dt);
+                this.velocity.x = nvx;
+                this.velocity.z = nvz;
+            }
 
             if(this.position.z <= -13){
                 this.position.z = -13;
