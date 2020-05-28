@@ -25,39 +25,30 @@ window.Player = window.classes.Player =
             model = model.times(Mat4.scale([r,r,r]));
             return model;
         }
-        // resetSpeed(){
-        //     this.velocity = velocity;
-        // }
+
         updatePlayer(collision, in_collision, collide_on_surface, dt) {
             // Update player location.
             let nx = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
             let nz = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
             this.position.x = nx;
             this.position.z = nz;
-            // Update on collision.
             let onSurface = collide_on_surface && Math.abs(this.velocity.z)<10;
             if(onSurface){
+                // Update when player should stay on a surface.
                 console.log("surface!!!!!")
                 this.velocity.z = 0;
                 this.acceleration.z = 0;
                 this.velocity.x = ApplyFriction(this.velocity.x);
             } else if (collision && !in_collision) {
+                // Update if player is colliding with a surface.
                 this.velocity = ApplyCollision(this.velocity);
             } else {
-                // Update player speed.
+                // Update on other situation.
                 this.acceleration.z = G;
                 let nvx = UpdateVelocity(this.velocity.x, this.acceleration.x, dt);
                 let nvz =  UpdateVelocity(this.velocity.z, this.acceleration.z, dt);
                 this.velocity.x = nvx;
                 this.velocity.z = nvz;
             }
-
-            // if(this.position.z <= -13){
-            //     this.position.z = -13;
-            //     this.velocity.z = 0;
-            //     // this.acceleration.z = 0;
-            // } else {
-            //     this.acceleration.z = G;
-            // }
         }
     }
