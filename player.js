@@ -25,7 +25,9 @@ window.Player = window.classes.Player =
             model = model.times(Mat4.scale([r,r,r]));
             return model;
         }
-
+        resetSpeed(){
+            this.velocity = velocity;
+        }
         updatePlayer(dt) {
             // Update player location.
             let nx = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
@@ -41,6 +43,10 @@ window.Player = window.classes.Player =
 
             if(this.position.z <= -13){
                 this.position.z = -13;
+                this.velocity.z = 0;
+                // this.acceleration.z = 0;
+            } else {
+                this.acceleration.z = G;
             }
         }
     }

@@ -14,20 +14,20 @@ window.Maze = window.classes.Maze =
             this.seperation = this.wall_length + this.thickness; 
             this.dim = Math.max(this.zspan, this.xspan);
             // S is start, E is end, X is wall
-            // this.walls = [
-            //     "+-+-+-+-+",
-            //     "|       |",
-            //     "+     +-+",
-            //     "|     | |",
-            //     "+   +-+-+",
-            //     "|   |   |",
-            //     "+ +-+-+-+",
-            //     "| |     |",
-            //     "+-+-+-+-+"
-            // ];
             this.walls = [
-                "-"
+                "+-+-+-+-+",
+                "|       |",
+                "+     +-+",
+                "|     | |",
+                "+   +-+-+",
+                "|   |   |",
+                "+ +-+-+-+",
+                "| |     |",
+                "+-+-+-+-+"
             ];
+            // this.walls = [
+            //     "-"
+            // ];
             // TODO use different symbol for walls with different properties
         }
     }

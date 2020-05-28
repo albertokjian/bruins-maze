@@ -42,8 +42,8 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                         gouraud: true,
                     })
                 };
-            this.player_model_transform = this.init_player_location();
-            this.player_position = [0,0,0];
+            // this.player_model_transform = this.init_player_location();
+            // this.player_position = [0,0,0];
             this.directions = {
                 UP: 'up',
                 DOWN: 'down',
@@ -54,21 +54,21 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.current_time = 0;
             this.currrent_direction = this.directions.STILL;
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
-            this.wall_positions = [];
-            this.store_walls_pos();
-            this.c=0;
 
 
             this.model_transform = MODEL_TRANSFORM
+            this.wall_positions = [];
+            this.store_walls_pos();
+            this.c=0;
             this.player = new Player();
             this.attached = () => this.initial_camera_location;
         }
-        init_player_location() {
-            let player_model_transform = Mat4.identity();
-            player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 3, this.dim - 8]));
-            player_model_transform = player_model_transform.times(Mat4.scale([2,2,2]));
-            return player_model_transform
-        }
+        // init_player_location() {
+        //     let player_model_transform = Mat4.identity();
+        //     player_model_transform = player_model_transform.times(Mat4.translation([this.dim - 8, 3, this.dim - 8]));
+        //     player_model_transform = player_model_transform.times(Mat4.scale([2,2,2]));
+        //     return player_model_transform
+        // }
         make_control_panel() {
             // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
             this.key_triggered_button("View entire maze", ["0"], () => this.attached = () => this.initial_camera_location);
@@ -127,7 +127,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         }
 
         store_a_wall_pos( xscale, yscale, zscale, angle, x, y, z) {
-            let model_transform = Mat4.identity();
+            let model_transform = this.model_transform;
 
             // M = T(x,y,z) * Ry(angle) * S(scalex, scaley, scalez)
             model_transform = model_transform.times(Mat4.translation([x, 0, z]));
@@ -175,47 +175,47 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                 }
             }
         }
-        player_collide_with_a_side(p1,p2){
-            var radius = 0.1;
-            var player_x = this.player_position[0];
-            var player_z = this.player_position[2];
-            var side1 = Math.sqrt(Math.pow(player_x - p1.x,2) + Math.pow(player_z - p1.z,2)); // Thats the pythagoras theoram If I can spell it right
-            var side2 = Math.sqrt(Math.pow(player_x - p2.x,2) + Math.pow(player_z - p2.z,2));
-            var base = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.z - p1.z,2));
-            if(radius > side1 || radius > side2)
-                return true;
-            var angle1 = Math.atan2( p2.x - p1.x, p2.z - p1.z ) - Math.atan2( player_x - p1.x, player_z - p1.z ); // Some complicated Math
-            var angle2 = Math.atan2( p1.x - p2.x, p1.z - p2.z ) - Math.atan2( player_x - p2.x, player_z - p2.z ); // Some complicated Math again
-            if(angle1 > Math.PI / 2 || angle2 > Math.PI / 2) // Making sure if any angle is an obtuse one and Math.PI / 2 = 90 deg
-                return false;
-
-            // Now if none are true then
-            var semiperimeter = (side1 + side2 + base) / 2;
-            var areaOfTriangle = Math.sqrt( semiperimeter * (semiperimeter - side1) * (semiperimeter - side2) * (semiperimeter - base) ); // Heron's formula for the area
-            var height = 2*areaOfTriangle/base;
-            if( height < radius )
-                return true;
-            else
-                return false;
-        }
-        player_collide_with_a_wall(wall_item) {
-            // now hardcoded to 4.
-            var collide_bottom = this.player_collide_with_a_side(wall_item.bl,wall_item.br);
-            if (collide_bottom) { console.log("Collide Bottom.")}
-            var collide_top = this.player_collide_with_a_side(wall_item.tl,wall_item.tr);
-            if (collide_top) { console.log("Collide Top.")}
-            var collide_left = this.player_collide_with_a_side(wall_item.bl,wall_item.tl);
-            if (collide_left) { console.log("Collide Left.")}
-            var collide_right = this.player_collide_with_a_side(wall_item.br,wall_item.tr);
-            if (collide_right) { console.log("Collide Right.")}
-
-        }
-        player_collide_with_walls(){
-            var wall_item;
-            for (wall_item of this.wall_positions) {
-                this.player_collide_with_a_wall(wall_item);
-            }
-        }
+        // player_collide_with_a_side(p1,p2){
+        //     var radius = 0.1;
+        //     var player_x = this.player_position[0];
+        //     var player_z = this.player_position[2];
+        //     var side1 = Math.sqrt(Math.pow(player_x - p1.x,2) + Math.pow(player_z - p1.z,2)); // Thats the pythagoras theoram If I can spell it right
+        //     var side2 = Math.sqrt(Math.pow(player_x - p2.x,2) + Math.pow(player_z - p2.z,2));
+        //     var base = Math.sqrt(Math.pow(p2.x - p1.x,2) + Math.pow(p2.z - p1.z,2));
+        //     if(radius > side1 || radius > side2)
+        //         return true;
+        //     var angle1 = Math.atan2( p2.x - p1.x, p2.z - p1.z ) - Math.atan2( player_x - p1.x, player_z - p1.z ); // Some complicated Math
+        //     var angle2 = Math.atan2( p1.x - p2.x, p1.z - p2.z ) - Math.atan2( player_x - p2.x, player_z - p2.z ); // Some complicated Math again
+        //     if(angle1 > Math.PI / 2 || angle2 > Math.PI / 2) // Making sure if any angle is an obtuse one and Math.PI / 2 = 90 deg
+        //         return false;
+        //
+        //     // Now if none are true then
+        //     var semiperimeter = (side1 + side2 + base) / 2;
+        //     var areaOfTriangle = Math.sqrt( semiperimeter * (semiperimeter - side1) * (semiperimeter - side2) * (semiperimeter - base) ); // Heron's formula for the area
+        //     var height = 2*areaOfTriangle/base;
+        //     if( height < radius )
+        //         return true;
+        //     else
+        //         return false;
+        // }
+        // player_collide_with_a_wall(wall_item) {
+        //     // now hardcoded to 4.
+        //     var collide_bottom = this.player_collide_with_a_side(wall_item.bl,wall_item.br);
+        //     if (collide_bottom) { console.log("Collide Bottom.")}
+        //     var collide_top = this.player_collide_with_a_side(wall_item.tl,wall_item.tr);
+        //     if (collide_top) { console.log("Collide Top.")}
+        //     var collide_left = this.player_collide_with_a_side(wall_item.bl,wall_item.tl);
+        //     if (collide_left) { console.log("Collide Left.")}
+        //     var collide_right = this.player_collide_with_a_side(wall_item.br,wall_item.tr);
+        //     if (collide_right) { console.log("Collide Right.")}
+        //
+        // }
+        // player_collide_with_walls(){
+        //     var wall_item;
+        //     for (wall_item of this.wall_positions) {
+        //         this.player_collide_with_a_wall(wall_item);
+        //     }
+        // }
         // TODO, read maze only once! store necessary information at the beginning
         create_maze(graphics_state) {
             for (let z_index = 0; z_index < this.maze.walls.length; z_index++) {
@@ -240,27 +240,23 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         }
 
         draw_player(graphics_state, t) {
-            // let speed = 0.05 ;
-            // switch (this.currrent_direction) {
-            //     case this.directions.UP:
-            //         this.player_position[2] += -speed;
-            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -speed]));
-            //         break;
-            //     case this.directions.DOWN:
-            //         this.player_position[2] += speed;
-            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, speed]));
-            //         break;
-            //     case this.directions.LEFT:
-            //         this.player_position[0] += -speed;
-            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([-speed, 0, 0]));
-            //         break;
-            //     case this.directions.RIGHT:
-            //         this.player_position[0] += speed;
-            //         this.player_model_transform = this.player_model_transform.times(Mat4.translation([speed, 0,0]));
-            //     default:
-            //         break;
-            // }
-
+            // this.player.resetSpeed();
+            switch (this.currrent_direction) {
+                case this.directions.UP:
+                    this.player.velocity.z += SPEED_UP;
+                    // this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -speed]));
+                    break;
+                case this.directions.LEFT:
+                    this.player.velocity.x -= SPEED_SIDE;
+                    // this.player_model_transform = this.player_model_transform.times(Mat4.translation([-speed, 0, 0]));
+                    break;
+                case this.directions.RIGHT:
+                    this.player.velocity.x += SPEED_SIDE;
+                    // this.player_model_transform = this.player_modezl_transform.times(Mat4.translation([speed, 0,0]));
+                default:
+                    break;
+            }
+            this.currrent_direction = this.directions.STILL;
             this.shapes.player.draw(graphics_state, this.player.getPlayerLModel(), this.materials.player);
         }
         display(graphics_state) {
@@ -283,9 +279,9 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // // light comes from within the player
             // this.lights[0].position = player_vec;
             // this.player_collide_with_walls();
-            this.player.updatePlayer(t-this.current_time);
-            this.draw_player(graphics_state,t-this.current_time);
-            // console.log("dt:",dt);
+            this.player.updatePlayer(dt);
+            this.draw_player(graphics_state,dt);
+            // console.log("z-speed,z-acc:",this.player.velocity.z,this.player.acceleration.z);
             // this.current_time = t;
         }
     };
