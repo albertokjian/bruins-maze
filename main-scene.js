@@ -21,33 +21,32 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.submit_shapes(context, shapes);
 
             // Make some Material objects available to you:
-            this.materials =
-                {
-                    floor: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
-                        ambient: .4,
-                        diffusivity: .7,
-                        specular: 1.,
-                        gouraud: true,
-                    }),
-                    player: context.get_instance(Phong_Shader).material(Color.of(.75, .75, .25, 1), {
-                        ambient: .8,
-                        diffusivity: .7,
-                        specular: .5,
-                        gouraud: true,
-                    }),
-                    wall: context.get_instance(Phong_Shader).material(Color.of(1, 1, 1, 1), {
-                        ambient: .1,
-                        diffusivity: .1,
-                        specularity: .6,
-                        gouraud: true,
-                    })
-                };
+            this.materials = {
+                floor: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
+                    ambient: .4,
+                    diffusivity: .7,
+                    specular: 1.,
+                    gouraud: true,
+                }),
+                player: context.get_instance(Phong_Shader).material(Color.of(.75, .75, .25, 1), {
+                    ambient: .8,
+                    diffusivity: .7,
+                    specular: .5,
+                    gouraud: true,
+                }),
+                wall: context.get_instance(Phong_Shader).material(Color.of(1, 1, 1, 1), {
+                    ambient: .1,
+                    diffusivity: .1,
+                    specularity: .6,
+                    gouraud: true,
+                })
+            };
             this.directions = {
                 UP: 'up',
                 DOWN: 'down',
                 LEFT: 'left',
                 RIGHT: 'right',
-                STILL:'still'
+                STILL: 'still'
             }
             this.currrent_direction = this.directions.STILL;
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
@@ -94,10 +93,10 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // imagine the original 2x2 was only entirely on positive y
             // but identity means it is moved down y is [-1, 1], so move it back up
             model_transform = model_transform.times(Mat4.translation([0, 1, 0]));
-            this.shapes.wall.draw(graphics_state,model_transform, this.materials.wall);
+            this.shapes.wall.draw(graphics_state, model_transform, this.materials.wall);
         }
 
-        store_a_wall_pos( xscale, yscale, zscale, angle, x, y, z) {
+        store_a_wall_pos(xscale, yscale, zscale, angle, x, y, z) {
             let model_transform = this.model_transform;
 
             // M = T(x,y,z) * Ry(angle) * S(scalex, scaley, scalez)
@@ -112,20 +111,41 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // but identity means it is moved down y is [-1, 1], so move it back up
             model_transform = model_transform.times(Mat4.translation([0, 1, 0]));
 
-            let coord_arr = [[-1,1], [1,1], [-1,-1], [1,-1]];
+            let coord_arr = [
+                [-1, 1],
+                [1, 1],
+                [-1, -1],
+                [1, -1]
+            ];
             let new_coord_arr = [];
             for (const xz of coord_arr) {
                 let new_coord = model_transform.times(Vec.of(xz[0], 10, xz[1], 1));
-                new_coord_arr.push({x:new_coord[0],z:new_coord[2]})
+                new_coord_arr.push({
+                    x: new_coord[0],
+                    z: new_coord[2]
+                })
             }
             this.wall_positions.push({
-                bl:{x:new_coord_arr[0].x,z:new_coord_arr[0].z},
-                br:{x:new_coord_arr[1].x,z:new_coord_arr[1].z},
-                tl:{x:new_coord_arr[2].x,z:new_coord_arr[2].z},
-                tr:{x:new_coord_arr[3].x,z:new_coord_arr[3].z}})
+                bl: {
+                    x: new_coord_arr[0].x,
+                    z: new_coord_arr[0].z
+                },
+                br: {
+                    x: new_coord_arr[1].x,
+                    z: new_coord_arr[1].z
+                },
+                tl: {
+                    x: new_coord_arr[2].x,
+                    z: new_coord_arr[2].z
+                },
+                tr: {
+                    x: new_coord_arr[3].x,
+                    z: new_coord_arr[3].z
+                }
+            })
         }
 
-        store_walls_pos(){
+        store_walls_pos() {
             for (let z_index = 0; z_index < this.maze.walls.length; z_index++) {
                 const str = this.maze.walls[z_index];
                 for (let x_index = 0; x_index < str.length; x_index++) {
@@ -134,13 +154,13 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     switch (str[x_index]) {
                         case '+':
                             // x_index and z_index is guarante
-                            this.store_a_wall_pos( this.maze.thickness, this.maze.yspan, this.maze.thickness, 0, x, 0 ,z);
+                            this.store_a_wall_pos(this.maze.thickness, this.maze.yspan, this.maze.thickness, 0, x, 0, z);
                             break;
                         case '-':
-                            this.store_a_wall_pos( this.maze.wall_length, this.maze.yspan, this.maze.thickness, 0, x, 0 ,z);
+                            this.store_a_wall_pos(this.maze.wall_length, this.maze.yspan, this.maze.thickness, 0, x, 0, z);
                             break;
                         case '|':
-                            this.store_a_wall_pos( this.maze.thickness, this.maze.yspan, this.maze.wall_length, 0, x, 0 ,z);
+                            this.store_a_wall_pos(this.maze.thickness, this.maze.yspan, this.maze.wall_length, 0, x, 0, z);
                             break;
                     }
                 }
@@ -154,15 +174,15 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     let x = -this.maze.xspan / 2 + x_index / 2 * this.maze.seperation;
                     let z = -this.maze.zspan / 2 + z_index / 2 * this.maze.seperation;
                     switch (str[x_index]) {
-                        case '+': 
+                        case '+':
                             // x_index and z_index is guarante
-                            this.create_wall(graphics_state, this.maze.thickness, this.maze.yspan, this.maze.thickness, 0, x, 0 ,z);
+                            this.create_wall(graphics_state, this.maze.thickness, this.maze.yspan, this.maze.thickness, 0, x, 0, z);
                             break;
                         case '-':
-                            this.create_wall(graphics_state, this.maze.wall_length, this.maze.yspan, this.maze.thickness, 0, x, 0 ,z);
+                            this.create_wall(graphics_state, this.maze.wall_length, this.maze.yspan, this.maze.thickness, 0, x, 0, z);
                             break;
                         case '|':
-                            this.create_wall(graphics_state, this.maze.thickness, this.maze.yspan, this.maze.wall_length, 0, x, 0 ,z);
+                            this.create_wall(graphics_state, this.maze.thickness, this.maze.yspan, this.maze.wall_length, 0, x, 0, z);
                             break;
                     }
                 }
@@ -190,15 +210,16 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         }
         display(graphics_state) {
             graphics_state.lights = this.lights; // Use the lights stored in this.lights.
-            const t = graphics_state.animation_time / 1000, dt = graphics_state.animation_delta_time / 1000;
+            const t = graphics_state.animation_time / 1000,
+                dt = graphics_state.animation_delta_time / 1000;
 
 
             // create a floor to have the maze on 
             let floor_model_transform = this.model_transform;
-            floor_model_transform = floor_model_transform.times(Mat4.translation([0, -1/2, 0]));
-            floor_model_transform = floor_model_transform.times(Mat4.scale([this.maze.zspan / 2, 1/2, this.maze.xspan / 2]));
+            floor_model_transform = floor_model_transform.times(Mat4.translation([0, -1 / 2, 0]));
+            floor_model_transform = floor_model_transform.times(Mat4.scale([this.maze.zspan / 2, 1 / 2, this.maze.xspan / 2]));
             this.shapes.wall.draw(graphics_state, floor_model_transform, this.materials.floor);
-            this.shapes.axis.draw(graphics_state,this.model_transform.times(Mat4.translation([0,10,0])),this.materials.player);
+            this.shapes.axis.draw(graphics_state, this.model_transform.times(Mat4.translation([0, 10, 0])), this.materials.player);
             this.create_maze(graphics_state);
             //
             // // TODO: change camera location to be front view
@@ -207,13 +228,10 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             //
             // // light comes from within the player
             // this.lights[0].position = player_vec;
-            let px = this.player.position.x;
-            let pz = this.player.position.z;
-            let collision = player_collide_with_walls(px, pz, this.wall_positions,3.5);
-            let collide_on_surface = player_collide_on_surface(px, pz, this.wall_positions,3.5);
-            this.player.updatePlayer(collision, this.in_collision, collide_on_surface, dt);
-            this.in_collision = collision;
-            this.draw_player(graphics_state,dt);
-            console.log("speed",this.player.velocity);
+            let collisions = player_collide_with_walls(this.player.position.x, this.player.position.z, this.wall_positions, BALL_RADIUS);
+            let collide_on_surface = player_collide_on_surface(this.player.position.x, this.player.position.z, this.wall_positions, BALL_RADIUS);
+            this.player.updatePlayer(collisions, this.in_collision, collide_on_surface, dt);
+            this.in_collision = collisions.length !==0;
+            this.draw_player(graphics_state, dt);
         }
     };

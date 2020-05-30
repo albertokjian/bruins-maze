@@ -1,6 +1,18 @@
-let position = {x:0,y:0,z:0}
-let velocity = {x:0,y:0,z:0}
-let acceleration = {x:0,y:0,z:0}
+let position = {
+    x: 0,
+    y: 0,
+    z: 0
+}
+let velocity = {
+    x: 0,
+    y: 0,
+    z: 0
+}
+let acceleration = {
+    x: 0,
+    y: 0,
+    z: 0
+}
 window.Player = window.classes.Player =
     class Player {
         constructor() {
@@ -14,39 +26,40 @@ window.Player = window.classes.Player =
             this.position.x = -26;
             this.position.z = 30;
             this.acceleration.z = G;
-            this.radius = 2;
+            this.radius = BALL_RADIUS;
         }
 
         getPlayerLModel() {
             let pos = this.position;
             let r = this.radius;
             let model = MODEL_TRANSFORM;
-            model = model.times(Mat4.translation([pos.x,pos.y,pos.z]));
-            model = model.times(Mat4.scale([r,r,r]));
+            model = model.times(Mat4.translation([pos.x, pos.y, pos.z]));
+            model = model.times(Mat4.scale([r, r, r]));
             return model;
         }
 
-        updatePlayer(collision, in_collision, collide_on_surface, dt) {
-            // Update player location.
-            let nx = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
-            let nz = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
-            this.position.x = nx;
-            this.position.z = nz;
-            let onSurface = collide_on_surface && Math.abs(this.velocity.z)<10;
-            if(onSurface){
+        updatePlayer(collisions, in_collision, collide_on_horizontal_surface, dt) {
+            let on_surface = collide_on_horizontal_surface && Math.abs(this.velocity.z) < 10;
+            for (let collision of collisions) {
+                if (collision != collision_status.no_collision && !in_collision) {
+                    // Update if player is colliding with a surface.
+                    this.velocity = ApplyCollision(this.velocity, collision);
+                }
+            }
+            if (on_surface) {
                 // Update when player should stay on a surface.
                 console.log("surface!!!!!")
                 this.velocity.z = 0;
                 this.acceleration.z = 0;
                 this.velocity.x = ApplyFriction(this.velocity.x);
-            } else if (collision != collision_status.no_collision && !in_collision) {
-                // Update if player is colliding with a surface.
-                this.velocity = ApplyCollision(this.velocity, collision);
             } else {
                 // Update on other situation.
                 this.acceleration.z = G;
                 this.velocity.x = UpdateVelocity(this.velocity.x, this.acceleration.x, dt);
                 this.velocity.z = UpdateVelocity(this.velocity.z, this.acceleration.z, dt);
             }
+            // Update player location.
+            this.position.x = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
+            this.position.z = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
         }
     }

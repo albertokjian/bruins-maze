@@ -4,6 +4,7 @@
 //      z axis points up.
 MODEL_TRANSFORM = Mat4.identity().times(Mat4.scale([1,1,-1]));
 G = -200; // Gravity constant
+BALL_RADIUS = 2
 COLLISION_SPEED = 0.8; // The amount of speed retained after a collision
 SPEED_UP = 100;
 SPEED_SIDE = 20;
