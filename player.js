@@ -39,16 +39,14 @@ window.Player = window.classes.Player =
                 this.velocity.z = 0;
                 this.acceleration.z = 0;
                 this.velocity.x = ApplyFriction(this.velocity.x);
-            } else if (collision && !in_collision) {
+            } else if (collision != collision_status.no_collision && !in_collision) {
                 // Update if player is colliding with a surface.
-                this.velocity = ApplyCollision(this.velocity);
+                this.velocity = ApplyCollision(this.velocity, collision);
             } else {
                 // Update on other situation.
                 this.acceleration.z = G;
-                let nvx = UpdateVelocity(this.velocity.x, this.acceleration.x, dt);
-                let nvz =  UpdateVelocity(this.velocity.z, this.acceleration.z, dt);
-                this.velocity.x = nvx;
-                this.velocity.z = nvz;
+                this.velocity.x = UpdateVelocity(this.velocity.x, this.acceleration.x, dt);
+                this.velocity.z = UpdateVelocity(this.velocity.z, this.acceleration.z, dt);
             }
         }
     }

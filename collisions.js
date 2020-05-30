@@ -1,3 +1,8 @@
+let collision_status = {
+    no_collision: 0,
+    collision_vertical: 1,
+    collision_horizontal: 2
+}
 function player_collide_with_a_side(px, pz, p1, p2, distance){
     let player_x = px;
     let player_z = pz;
@@ -25,7 +30,9 @@ function player_collide_with_a_wall(px, pz, wall_item, distance) {
     let collide_top = player_collide_with_a_side(px, pz, wall_item.tl,wall_item.tr, distance);
     let collide_left = player_collide_with_a_side(px, pz, wall_item.bl,wall_item.tl, distance);
     let collide_right = player_collide_with_a_side(px, pz, wall_item.br,wall_item.tr, distance);
-    return (collide_bottom || collide_left || collide_right || collide_top);
+    if (collide_top || collide_bottom){return collision_status.collision_horizontal;}
+    else if (collide_right || collide_left) {return collision_status.collision_vertical;}
+    else {return collision_status.no_collision}
 }
 
 function player_collide_on_one_surface(px, pz, wall_item, distance) {
@@ -43,8 +50,9 @@ function player_collide_on_surface(px, pz, wall_positions, distance){
 function player_collide_with_walls(px, pz, wall_positions, distance){
     let wall_item;
     for (wall_item of wall_positions) {
-        if (player_collide_with_a_wall(px, pz, wall_item, distance)){ return true;}
+        let c = player_collide_with_a_wall(px, pz, wall_item, distance);
+        if (c!=collision_status.no_collision){ return c;}
     }
-    return false;
+    return collision_status.no_collision;
 }
 

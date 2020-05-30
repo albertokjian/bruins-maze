@@ -172,13 +172,16 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
         draw_player(graphics_state, t) {
             switch (this.currrent_direction) {
                 case this.directions.UP:
-                    this.player.velocity.z += SPEED_UP;
+                    this.player.velocity.z = Math.min(1.5 * SPEED_UP, this.player.velocity.z + SPEED_UP);
+                    // this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -speed]));
                     break;
                 case this.directions.LEFT:
-                    this.player.velocity.x -= SPEED_SIDE;
+                    this.player.velocity.x = Math.max(-2 * SPEED_SIDE, this.player.velocity.x - SPEED_SIDE);
+                    // this.player_model_transform = this.player_model_transform.times(Mat4.translation([-speed, 0, 0]));
                     break;
                 case this.directions.RIGHT:
-                    this.player.velocity.x += SPEED_SIDE;
+                    this.player.velocity.x = Math.min(2 * SPEED_SIDE, this.player.velocity.x + SPEED_SIDE);
+                    // this.player_model_transform = this.player_modezl_transform.times(Mat4.translation([speed, 0,0]));
                 default:
                     break;
             }
