@@ -9,3 +9,11 @@ COLLISION_SPEED = 0.8; // The amount of speed retained after a collision
 SPEED_UP = 100;
 SPEED_SIDE = 20;
 FRICTION = 0.99;
+const DIRECTIONS = {
+    UP: 'up',
+    DOWN: 'down',
+    LEFT: 'left',
+    RIGHT: 'right',
+    STILL: 'still'
+}
+Object.freeze(DIRECTIONS)
