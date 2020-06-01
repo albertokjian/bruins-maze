@@ -1,6 +1,6 @@
 window.Player = window.classes.Player =
     class Player {
-        constructor(px = -26, pz = 30) {
+        constructor(px, pz) {
             this.position = {
                 x: px,
                 y: 5,
@@ -18,12 +18,14 @@ window.Player = window.classes.Player =
             }
             this.radius = BALL_RADIUS;
             this.model_transform = MODEL_TRANSFORM;
-            this.create_model_transform();
+            this.update_model_transform();
+            this.on_top_surface = false;
         }
 
-        create_model_transform() {
+        update_model_transform() {
             let pos = this.position;
             let r = this.radius;
+            this.model_transform = MODEL_TRANSFORM;
             this.model_transform = this.model_transform.times(Mat4.translation([pos.x, pos.y, pos.z]));
             this.model_transform = this.model_transform.times(Mat4.scale([r, r, r]));
         }
@@ -35,29 +37,80 @@ window.Player = window.classes.Player =
         // Move the player along the Y axis.
         // Check for colliding tiles.
         // Resolve Y collision.
-        updatePlayer(dt) {
+        update_player_location(dt) {
             // Update player location.
-            this.position.x = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
-            this.position.z = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
+            [this.position.x, this.velocity.x, this.acceleration.x] = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
+            [this.position.z, this.velocity.z, this.acceleration.z] = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
+            this.velocity.x = this.velocity.x > 0 ? Math.min(this.velocity.x, SPEED_LIMIT_X) : Math.max(this.velocity.x, -SPEED_LIMIT_X);
+            this.velocity.z = this.velocity.z > 0 ? Math.min(this.velocity.z, SPEED_LIMIT_Z) : Math.max(this.velocity.z, -SPEED_LIMIT_Z);
+            this.update_model_transform();
         }
 
-        movePlayer(current_direction) {
-            switch (currrent_direction) {
-                case this.directions.UP:
-                    this.player.velocity.z = Math.min(1.5 * SPEED_UP, this.player.velocity.z + SPEED_UP);
-                    // this.player_model_transform = this.player_model_transform.times(Mat4.translation([0, 0, -speed]));
+        move(current_direction, dt, walls, coins) {
+            switch (current_direction) {
+                case DIRECTIONS.UP:
+                    if (this.on_top_surface && this.velocity.z == 0) {
+                        this.velocity.z = SPEED_UP;
+                        this.acceleration.z = G;
+                        this.on_top_surface = false;
+                    }
                     break;
-                case this.directions.LEFT:
-                    this.player.velocity.x = Math.max(-2 * SPEED_SIDE, this.player.velocity.x - SPEED_SIDE);
-                    // this.player_model_transform = this.player_model_transform.times(Mat4.translation([-speed, 0, 0]));
+                case DIRECTIONS.LEFT:
+                    this.velocity.x -= SPEED_SIDE;
                     break;
-                case this.directions.RIGHT:
-                    this.player.velocity.x = Math.min(2 * SPEED_SIDE, this.player.velocity.x + SPEED_SIDE);
-                    // this.player_model_transform = this.player_modezl_transform.times(Mat4.translation([speed, 0,0]));
-                default:
+                case DIRECTIONS.RIGHT:
+                    this.velocity.x += SPEED_SIDE;
+                default: // DIRECTIONS.STILL
+                    this.acceleration.z = G;
                     break;
             }
-            this.currrent_direction = this.directions.STILL;
+            let is_on_surface = false;
+            for (let wall of walls) {
+                is_on_surface = is_on_surface | this.resolve_check_box_collision(wall, dt);
+            }
+            this.on_top_surface = is_on_surface;
+            this.update_player_location(dt);
+        }
+
+        // every game_object has aabb
+        // https://gamedev.stackexchange.com/questions/69339/2d-aabbs-and-resolving-multiple-collisions
+        // Move the player along the X axis.
+        // Check for colliding tiles.
+        // Resolve X collision.
+        // Move the player along the Y axis.
+        // Check for colliding tiles.
+        // Resolve Y collision.
+        // ball to box collision
+        resolve_check_box_collision(game_object, dt) {
+            let [px, vx, ax] = UpdateLocation(this.position.x, this.velocity.x, this.acceleration.x, dt);
+            let [pz, vz, az] = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
+            let collide_x = false;
+            let collide_z = false;
+            let status;
+            [collide_x, status] = CircleRect(px, this.position.z, this.radius, game_object);
+            if (collide_x)
+                this.velocity.x = -COLLISION_SPEED * this.velocity.x;
+            [collide_z, status] = CircleRect(this.position.x, pz, this.radius, game_object);
+            if (collide_z) {
+                this.velocity.z = -COLLISION_SPEED * this.velocity.z;
+                if (status & COLLISIONS.TOP) {
+                    if (Math.abs(this.velocity.z) < SPEED_CUTOFF) {
+                        this.acceleration.z = 0;
+                        this.velocity.z = 0;
+                        this.on_top_surface = true;
+                    } else this.acceleration.z = G;
+                    this.velocity.x = ApplyFriction(this.velocity.x);
+                    if (Math.abs(this.velocity.x) < 1) {
+                        this.velocity.x = 0;
+                    }
+                } 
+            }
+            return status & COLLISIONS.TOP;
+        }
+
+        // ball to ball collision
+        check_ball_collision(game_object) {
+
         }
 
         draw(graphics_state, shapes, materials) {

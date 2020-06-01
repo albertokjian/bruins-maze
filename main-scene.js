@@ -41,7 +41,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     gouraud: true,
                 })
             };
-            this.currrent_direction = DIRECTIONS.STILL;
+            this.current_direction = DIRECTIONS.STILL;
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
             this.player = this.maze.player;
             this.attached = () => this.initial_camera_location;
@@ -53,25 +53,37 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.new_line();
             this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player_camera_location);
             this.new_line();
-            this.key_triggered_button("Move Up", ["i"], () => {
-                this.currrent_direction = DIRECTIONS.UP;
-            });
+            this.key_triggered_button("Jump Up", ["i"], () => {
+                    this.current_direction = DIRECTIONS.UP;
+                },
+                undefined,
+                () => {
+                    this.current_direction = DIRECTIONS.STILL;
+                });
             this.new_line();
             this.key_triggered_button("Move Left", ["j"], () => {
-                this.currrent_direction = DIRECTIONS.LEFT;
-            });
+                    this.current_direction = DIRECTIONS.LEFT;
+                },
+                undefined,
+                () => {
+                    this.current_direction = DIRECTIONS.STILL;
+                });
             this.new_line();
             this.key_triggered_button("Move Right", ["l"], () => {
-                this.currrent_direction = DIRECTIONS.RIGHT;
-            });
+                    this.current_direction = DIRECTIONS.RIGHT;
+                },
+                undefined,
+                () => {
+                    this.current_direction = DIRECTIONS.STILL;
+                });
         }
 
         display(graphics_state) {
             graphics_state.lights = this.lights; // Use the lights stored in this.lights.
             const t = graphics_state.animation_time / 1000,
                 dt = graphics_state.animation_delta_time / 1000;
-            
-                this.shapes.axis.draw(graphics_state, MODEL_TRANSFORM.times(Mat4.translation([0, 10, 0])), this.materials.player);
-            this.maze.draw(graphics_state, this.shapes, this.materials);            
+            this.shapes.axis.draw(graphics_state, MODEL_TRANSFORM.times(Mat4.translation([0, 10, 0])).times(Mat4.scale([1,1,-1])), this.materials.player);
+            this.maze.update_player(this.current_direction, dt);
+            this.maze.draw(graphics_state, this.shapes, this.materials);
         }
     };

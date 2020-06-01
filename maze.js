@@ -40,7 +40,9 @@ window.Maze = window.classes.Maze =
             // ]
             // TODO use different symbol for walls with different properties
 
+            // TODO USE OOP TO CREATE ONE CLASS OF WALLS/COINS/FLAG(WIN)
             this.walls = [];
+            this.coins = []; // TODO CREATE COIN CLASS
             this.player;
             this.create_maze();
 
@@ -64,11 +66,15 @@ window.Maze = window.classes.Maze =
                             this.walls.push(new Wall(this.thickness, this.yspan, this.wall_length, 0, x, 0, z));
                             break;
                         case 'S':
-                            this.player = new Player(x, -z);
+                            this.player = new Player(x, z);
                             break;
                     }
                 }
             }
+        }
+
+        update_player(current_direction, dt) {
+            this.player.move(current_direction, dt, this.walls, this.coins);
         }
 
         draw(graphics_state, shapes, materials) {
