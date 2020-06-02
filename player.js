@@ -57,9 +57,12 @@ window.Player = window.classes.Player =
                     break;
                 case DIRECTIONS.LEFT:
                     this.velocity.x -= SPEED_SIDE;
+                    this.acceleration.z = G;
                     break;
                 case DIRECTIONS.RIGHT:
                     this.velocity.x += SPEED_SIDE;
+                    this.acceleration.z = G;
+                    break;
                 default: // DIRECTIONS.STILL
                     this.acceleration.z = G;
                     break;
