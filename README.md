@@ -7,8 +7,7 @@
 - If you are on Mac, double click on `host.command`
 - Note: On Mac, you might get a security warning instead if you double-click. Instead, right click the files, then choose Open, or you can go into System Preferences/Security & Prinvacy/General and click 'Open Anyway'. You may possibly need to check the file permissions and set them to 744.
 3. Go to your browser (e.g., Chrome) and navigate to `localhost:8000`. This will get you to the local server running this repository.
-
-If you don't see the maze (e.g., especially if this is the first time setting up):
+`If you don't see the maze (e.g., especially if this is the first time setting up):`
 4. Right click and go to "Inspect", or use Cmd+Option+I on Mac, or use F12 on Windows.
 5. Navigate to the Source tab.
 6. In File Explorer (Windows) or Finder (Mac), navigate to this repository folder, and drag and drop the contents (entire folder) into the Workspace under Filesystem tab (you might need to switch from Page tab to Filesystem tab). 
