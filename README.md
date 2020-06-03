@@ -19,6 +19,8 @@
 - In a similar fashion as WASD, use `i` to jump, `j` to go left, and `l` to go right.
 - Press `0` to view entire maze
 - Press `1` to view player camera view
+- Press `m` to restart the current maze, relocating the player back to start position
+- Press `n` to create a new maze, dynamically regenerating a maze with different solution
 - Other auxiliary controls can be found in the control panel (bottom part of the screen) in the webpage.
 #### OBJECTIVE
 The ball spawns at some location in the maze, and you need to use the keys i, j, and l to make the ball traverse the maze to the very end.
