@@ -15,6 +15,7 @@ window.Maze = window.classes.Maze =
             this.seperation = this.wall_length + this.thickness;
             this.dim = Math.max(this.zspan, this.xspan);
             // S is start, E is end, X is wall
+            /*
             this.layout = [
                 "+-+-+-+-+",
                 "|S      |",
@@ -26,6 +27,8 @@ window.Maze = window.classes.Maze =
                 "|       |",
                 "+-+-+-+-+"
             ];
+            */
+            this.layout = display(maze(SIZE_X, SIZE_Y));
 
             // this.layout = [
             //     " - - - - ",
