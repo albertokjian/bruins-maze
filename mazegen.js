@@ -2,7 +2,7 @@
 // https://rosettacode.org/wiki/Maze_generation#JavaScript
 // With modifications to adapt to our maze conventions
 
-function maze(x,y) {
+function generate_maze(x,y) {
     var n=x*y-1;
     if (n<0) {alert("illegal maze dimensions");return;}
     var horiz =[]; for (var j= 0; j<x+1; j++) horiz[j]= [],
@@ -37,7 +37,7 @@ function maze(x,y) {
     return {x: x, y: y, horiz: horiz, verti: verti};
 }
 
-function display(m) {
+function display_maze(m) {
     var text= [];
     for (var j= 0; j<m.x+1; j++) {
         var line= [];

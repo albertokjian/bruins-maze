@@ -28,7 +28,7 @@ window.Maze = window.classes.Maze =
                 "+-+-+-+-+"
             ];
             */
-            this.layout = display(maze(SIZE_X, SIZE_Y));
+            this.layout = display_maze(generate_maze(SIZE_X, SIZE_Y));
 
             // this.layout = [
             //     " - - - - ",
