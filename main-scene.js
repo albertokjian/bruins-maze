@@ -104,6 +104,16 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     this.current_direction = {up:false, left:false, right:false}
                     // this.current_direction.right = false;
                 });
+            this.new_line();
+            this.key_triggered_button("Restart", ["m"], () => {
+                    this.maze.create_maze();
+                });
+            this.new_line();
+            this.key_triggered_button("Create New Maze", ["n"], () => {
+                    this.maze.walls = [];
+                    this.maze.layout = display_maze(generate_maze(SIZE_X, SIZE_Y));
+                    this.maze.create_maze();
+                });
         }
 
         display(graphics_state) {

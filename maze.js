@@ -51,7 +51,6 @@ window.Maze = window.classes.Maze =
 
         }
 
-        // TODO, read maze only once! store necessary information at the beginning
         create_maze() {
             for (let z_index = 0; z_index < this.layout.length; z_index++) {
                 const str = this.layout[z_index];
