@@ -3,7 +3,7 @@ window.Player = window.classes.Player =
         constructor(px, pz) {
             this.position = {
                 x: px,
-                y: 5,
+                y: THICKNESS/2,
                 z: pz
             };
             this.velocity = {
@@ -46,9 +46,11 @@ window.Player = window.classes.Player =
             this.update_model_transform();
         }
 
-        move(current_direction, dt, walls, coins) {
+        // returns true if game finished
+        move(current_direction, dt, walls, endbox) {
+            // you can jump again after you reaches velocity 0 (at highest point of jumping or on surface)
             if(current_direction.up){
-                if (this.on_top_surface && this.velocity.z == 0) {
+                if (this.on_top_surface || Math.abs(this.velocity.z) < SPEED_CUTOFF) {
                     this.velocity.z = SPEED_UP;
                     this.acceleration.z = G;
                     this.on_top_surface = false;
@@ -67,10 +69,11 @@ window.Player = window.classes.Player =
             }
             let is_on_surface = false;
             for (let wall of walls) {
-                is_on_surface = is_on_surface | this.resolve_check_box_collision(wall, dt);
+                is_on_surface = is_on_surface | this.resolve_check_box_collision(wall, dt) & COLLISIONS.TOP;
             }
             this.on_top_surface = is_on_surface;
             this.update_player_location(dt);
+            return this.resolve_check_box_collision(endbox,dt) != COLLISIONS.STILL;
         }
 
         // every game_object has aabb
@@ -87,11 +90,13 @@ window.Player = window.classes.Player =
             let [pz, vz, az] = UpdateLocation(this.position.z, this.velocity.z, this.acceleration.z, dt);
             let collide_x = false;
             let collide_z = false;
-            let status;
-            [collide_x, status] = CircleRect(px, this.position.z, this.radius, game_object);
+            let status = COLLISIONS.STILL, tmp_status;
+            [collide_x, tmp_status] = CircleRect(px, this.position.z, this.radius, game_object);
+            status |= tmp_status;
             if (collide_x)
                 this.velocity.x = -COLLISION_SPEED * this.velocity.x;
-            [collide_z, status] = CircleRect(this.position.x, pz, this.radius, game_object);
+            [collide_z, tmp_status] = CircleRect(this.position.x, pz, this.radius, game_object);
+            status |= tmp_status;
             if (collide_z) {
                 this.velocity.z = -COLLISION_SPEED * this.velocity.z;
                 if (status & COLLISIONS.TOP) {
@@ -101,12 +106,9 @@ window.Player = window.classes.Player =
                         this.on_top_surface = true;
                     } else this.acceleration.z = G;
                     this.velocity.x = ApplyFriction(this.velocity.x);
-                    if (Math.abs(this.velocity.x) < 1) {
-                        this.velocity.x = 0;
-                    }
                 } 
             }
-            return status & COLLISIONS.TOP;
+            return status;
         }
 
         // ball to ball collision
@@ -114,7 +116,7 @@ window.Player = window.classes.Player =
 
         }
 
-        draw(graphics_state, shapes, materials) {
-            shapes.player.draw(graphics_state, this.model_transform, materials.player);
+        draw(graphics_state, shape, material) {
+            shape.draw(graphics_state, this.model_transform, material);
         }
     }

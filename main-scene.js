@@ -39,6 +39,12 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     diffusivity: .1,
                     specularity: .6,
                     gouraud: true,
+                }),
+                endbox: context.get_instance(Phong_Shader).material(Color.of(0, 1, 0, .4), {
+                    ambient: 1,
+                    diffusivity: 1,
+                    specularity: 1,
+                    gouraud: true,
                 })
             };
             // this.current_direction = DIRECTIONS.STILL;
@@ -110,18 +116,17 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                 });
             this.new_line();
             this.key_triggered_button("Create New Maze", ["n"], () => {
-                    this.maze.walls = [];
-                    this.maze.layout = display_maze(generate_maze(SIZE_X, SIZE_Y));
-                    this.maze.create_maze();
+                    this.maze.create_new_maze();
                 });
         }
 
         display(graphics_state) {
             graphics_state.lights = this.lights; // Use the lights stored in this.lights.
             const t = graphics_state.animation_time / 1000,
-                dt = graphics_state.animation_delta_time / 1000;
+                // dt = graphics_state.animation_delta_time / 1000;
+                dt = 1/FPS;
             this.shapes.axis.draw(graphics_state, MODEL_TRANSFORM.times(Mat4.translation([0, 10, 0])).times(Mat4.scale([1,1,-1])), this.materials.player);
-            this.maze.update_player(this.current_direction, dt);
+            if(this.maze.update_player(this.current_direction, dt)) this.maze.create_new_maze();
             this.maze.draw(graphics_state, this.shapes, this.materials);
         }
     };

@@ -58,5 +58,5 @@ function CircleRect(cx, cz, radius, game_object) {
     if (distance <= radius) {
         return [true, status];
     }
-    return [false, status];
+    return [false, COLLISIONS.STILL];
 }

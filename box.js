@@ -1,8 +1,8 @@
-window.Wall = window.classes.Wall =
-    class Wall {
+window.Box = window.classes.Box =
+    class Box {
         constructor(xscale, yscale, zscale, angle, x, y, z) {
             this.model_transform = MODEL_TRANSFORM;
-            this.create_wall(xscale, yscale, zscale, angle, x, y, z);
+            this.create_model_transform(xscale, yscale, zscale, angle, x, y, z);
             this.x; // position x
             this.y; // position y
             this.z; // position z
@@ -19,7 +19,7 @@ window.Wall = window.classes.Wall =
         }
 
         // Use transformation matrices to properly position a wall of a given width, height, depth at x, y, with specified rotation angle
-        create_wall(xscale, yscale, zscale, angle, x, y, z) {
+        create_model_transform(xscale, yscale, zscale, angle, x, y, z) {
             // M = T(x,y,z) * Ry(angle) * S(scalex, scaley, scalez)
             this.model_transform = this.model_transform.times(Mat4.translation([x, y, z]));
             this.model_transform = this.model_transform.times(Mat4.rotation(angle, Vec.of(0, 1, 0)));
@@ -34,7 +34,7 @@ window.Wall = window.classes.Wall =
             this.create_aabb();
         }
 
-        draw(graphics_state, shapes, materials) {
-            shapes.wall.draw(graphics_state, this.model_transform, materials.wall);
+        draw(graphics_state, shape, material) {
+            shape.draw(graphics_state, this.model_transform, material);
         }
     }

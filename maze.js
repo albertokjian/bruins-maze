@@ -2,18 +2,15 @@ window.Maze = window.classes.Maze =
     class Maze {
         // TODO randomly generate this maze
         constructor() {
-            this.zspan = 64; // left to right in z axis
-            this.xspan = 64; // down to up in x axis
-            this.yspan = 8; // from y = 0 to out of page in y axis
-
-            // TODO separate z and x wall length
             // make sure number of horizontal walls = zspan / (wall_length + thickness)
-            this.wall_length = 11; // how long is each X
-            // this.thickness = 1.5; // how thick the walls are
-            this.thickness = 5;
+            this.thickness = THICKNESS;
+            this.wall_length = WALL_LENGTH; // how long is each wall
+            this.zspan = NUM_WALLS * (WALL_LENGTH + THICKNESS); // left to right in z axis
+            this.xspan = NUM_WALLS * (WALL_LENGTH + THICKNESS); // down to up in x axis
+            this.yspan = THICKNESS; // from y = 0 to out of page in y axis
             // how far are nodes to each other without scaling
-            this.seperation = this.wall_length + this.thickness;
             this.dim = Math.max(this.zspan, this.xspan);
+            this.seperation = this.wall_length + this.thickness;
             // S is start, E is end, X is wall
             /*
             this.layout = [
@@ -28,27 +25,18 @@ window.Maze = window.classes.Maze =
                 "+-+-+-+-+"
             ];
             */
-            this.layout = display_maze(generate_maze(SIZE_X, SIZE_Y));
-
-            // this.layout = [
-            //     " - - - - ",
-            //     "|       |",
-            //     "+       +",
-            //     "|       |",
-            //     "+       +",
-            //     "|       |",
-            //     "+       +",
-            //     "|       |",
-            //     "+-+-+-+-+"
-            // ]
-            // TODO use different symbol for walls with different properties
-
-            // TODO USE OOP TO CREATE ONE CLASS OF WALLS/COINS/FLAG(WIN)
-            this.walls = [];
-            this.coins = []; // TODO CREATE COIN CLASS
+            this.layout;
+            this.walls;
             this.player;
-            this.create_maze();
+            this.endbox;
+            this.create_new_maze();
 
+        }
+
+        create_new_maze() {
+            this.walls = [];
+            this.layout = display_maze(generate_maze(NUM_WALLS, NUM_WALLS));
+            this.create_maze();
         }
 
         create_maze() {
@@ -59,16 +47,19 @@ window.Maze = window.classes.Maze =
                     let z = -this.zspan / 2 + z_index / 2 * this.seperation;
                     switch (str[x_index]) {
                         case '+':
-                            this.walls.push(new Wall(this.thickness, this.yspan, this.thickness, 0, x, 0, z));
+                            this.walls.push(new Box(this.thickness, this.yspan, this.thickness, 0, x, 0, z));
                             break;
                         case '-':
-                            this.walls.push(new Wall(this.wall_length, this.yspan, this.thickness, 0, x, 0, z));
+                            this.walls.push(new Box(this.wall_length, this.yspan, this.thickness, 0, x, 0, z));
                             break;
                         case '|':
-                            this.walls.push(new Wall(this.thickness, this.yspan, this.wall_length, 0, x, 0, z));
+                            this.walls.push(new Box(this.thickness, this.yspan, this.wall_length, 0, x, 0, z));
                             break;
                         case 'S':
                             this.player = new Player(x, z);
+                            break;
+                        case 'E':
+                            this.endbox = new Box(this.wall_length, this.yspan, this.wall_length, 0, x, 0, z);
                             break;
                     }
                 }
@@ -76,7 +67,7 @@ window.Maze = window.classes.Maze =
         }
 
         update_player(current_direction, dt) {
-            this.player.move(current_direction, dt, this.walls, this.coins);
+            return this.player.move(current_direction, dt, this.walls, this.endbox);
         }
 
         draw(graphics_state, shapes, materials) {
@@ -87,8 +78,9 @@ window.Maze = window.classes.Maze =
             shapes.wall.draw(graphics_state, floor_model_transform, materials.floor);
 
             for (let wall of this.walls) {
-                wall.draw(graphics_state, shapes, materials);
+                wall.draw(graphics_state, shapes.wall, materials.wall);
             }
-            this.player.draw(graphics_state, shapes, materials);
+            this.player.draw(graphics_state, shapes.player, materials.player);
+            this.endbox.draw(graphics_state, shapes.wall, materials.endbox);
         }
     }

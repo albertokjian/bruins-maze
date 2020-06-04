@@ -4,16 +4,18 @@
 //      z axis points up.
 MODEL_TRANSFORM = Mat4.identity(); //.times(Mat4.scale([1,1,-1]));
 G = 200; // Gravity constant
-BALL_RADIUS = 2
 COLLISION_SPEED = 0.8; // The amount of speed retained after a collision
-SIZE_X = 10;
-SIZE_Y = 10;
-SPEED_UP = -100;
+NUM_WALLS = 6; // number of walls per side
+THICKNESS = 2;
+WALL_LENGTH = 4;
+BALL_RADIUS = THICKNESS / 3;
+SPEED_UP = -50;
 SPEED_LIMIT_X = 20;
 SPEED_SIDE = 10;
 SPEED_LIMIT_Z = 100;
 SPEED_CUTOFF = 5;
 FRICTION = 0.9;
+FPS = 60;
 const DIRECTIONS = {
     UP: 'up',
     DOWN: 'down',
