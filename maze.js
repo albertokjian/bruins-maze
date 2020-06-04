@@ -11,6 +11,7 @@ window.Maze = window.classes.Maze =
             // how far are nodes to each other without scaling
             this.dim = Math.max(this.zspan, this.xspan);
             this.seperation = this.wall_length + this.thickness;
+            this.additional_walls = 0; // for level progression, make maze larger
             // S is start, E is end, X is wall
             /*
             this.layout = [
@@ -35,7 +36,7 @@ window.Maze = window.classes.Maze =
 
         create_new_maze() {
             this.walls = [];
-            this.layout = display_maze(generate_maze(NUM_WALLS, NUM_WALLS));
+            this.layout = display_maze(generate_maze(NUM_WALLS + this.additional_walls, NUM_WALLS + this.additional_walls));
             this.create_maze();
         }
 

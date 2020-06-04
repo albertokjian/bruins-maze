@@ -58,7 +58,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
             this.key_triggered_button("View entire maze", ["0"], () => this.attached = () => this.initial_camera_location);
             this.new_line();
-            this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player_camera_location);
+            this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player.model_transform.times(Mat4.translation([0, 20, 0]).times(Mat4.rotation(3 * Math.PI / 2, Vec.of(1, 0, 0)))));
             this.new_line();
             this.key_triggered_button("Jump Up", ["i"], () => {
                     this.current_direction.up = true;
@@ -126,7 +126,19 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                 // dt = graphics_state.animation_delta_time / 1000;
                 dt = 1/FPS;
             this.shapes.axis.draw(graphics_state, MODEL_TRANSFORM.times(Mat4.translation([0, 10, 0])).times(Mat4.scale([1,1,-1])), this.materials.player);
-            if(this.maze.update_player(this.current_direction, dt)) this.maze.create_new_maze();
+            if(this.maze.update_player(this.current_direction, dt)) { // level complete
+                this.maze.additional_walls++;
+                this.maze.zspan = (NUM_WALLS + this.maze.additional_walls) * (WALL_LENGTH + THICKNESS); // left to right in z axis
+                this.maze.xspan = (NUM_WALLS + this.maze.additional_walls) * (WALL_LENGTH + THICKNESS); // down to up in x axis
+                this.maze.create_new_maze();
+            }
             this.maze.draw(graphics_state, this.shapes, this.materials);
+
+            // Desired camera matrix
+            if(this.attached != undefined) {
+              let desired = Mat4.inverse(this.attached().times(Mat4.translation([0, 0, 5 + this.maze.additional_walls * this.maze.additional_walls * 0.9])));
+              let blending_factor = 0.1;
+              graphics_state.camera_transform = desired.map( (x,i) => Vec.from( graphics_state.camera_transform[i] ).mix( x, blending_factor ) );
+            }
         }
     };

@@ -5,7 +5,7 @@
 MODEL_TRANSFORM = Mat4.identity(); //.times(Mat4.scale([1,1,-1]));
 G = 200; // Gravity constant
 COLLISION_SPEED = 0.8; // The amount of speed retained after a collision
-NUM_WALLS = 6; // number of walls per side
+NUM_WALLS = 2; // number of walls per side
 THICKNESS = 2;
 WALL_LENGTH = 4;
 BALL_RADIUS = THICKNESS / 3;
