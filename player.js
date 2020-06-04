@@ -47,25 +47,23 @@ window.Player = window.classes.Player =
         }
 
         move(current_direction, dt, walls, coins) {
-            switch (current_direction) {
-                case DIRECTIONS.UP:
-                    if (this.on_top_surface && this.velocity.z == 0) {
-                        this.velocity.z = SPEED_UP;
-                        this.acceleration.z = G;
-                        this.on_top_surface = false;
-                    }
-                    break;
-                case DIRECTIONS.LEFT:
-                    this.velocity.x -= SPEED_SIDE;
+            if(current_direction.up){
+                if (this.on_top_surface && this.velocity.z == 0) {
+                    this.velocity.z = SPEED_UP;
                     this.acceleration.z = G;
-                    break;
-                case DIRECTIONS.RIGHT:
-                    this.velocity.x += SPEED_SIDE;
-                    this.acceleration.z = G;
-                    break;
-                default: // DIRECTIONS.STILL
-                    this.acceleration.z = G;
-                    break;
+                    this.on_top_surface = false;
+                }
+            }
+            if (current_direction.left) {
+                this.velocity.x -= SPEED_SIDE;
+                this.acceleration.z = G;
+            }
+            if (current_direction.right) {
+                this.velocity.x += SPEED_SIDE;
+                this.acceleration.z = G;
+            }
+            if (!(current_direction.right || current_direction.left || current_direction.up)){
+                this.acceleration.z = G;
             }
             let is_on_surface = false;
             for (let wall of walls) {

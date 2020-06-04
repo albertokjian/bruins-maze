@@ -41,7 +41,8 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     gouraud: true,
                 })
             };
-            this.current_direction = DIRECTIONS.STILL;
+            // this.current_direction = DIRECTIONS.STILL;
+            this.current_direction = {up:false, left:false, right:false}
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
             this.player = this.maze.player;
             this.attached = () => this.initial_camera_location;
@@ -54,27 +55,54 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.key_triggered_button("View player", ["1"], () => this.attached = () => this.player_camera_location);
             this.new_line();
             this.key_triggered_button("Jump Up", ["i"], () => {
-                    this.current_direction = DIRECTIONS.UP;
-                },
+                    this.current_direction.up = true;
+                }
+                ,
                 undefined,
                 () => {
-                    this.current_direction = DIRECTIONS.STILL;
+                    this.current_direction = {up:false, left:false, right:false}
                 });
             this.new_line();
             this.key_triggered_button("Move Left", ["j"], () => {
-                    this.current_direction = DIRECTIONS.LEFT;
-                },
+                    this.current_direction.left = true;
+                }
+                ,
                 undefined,
                 () => {
-                    this.current_direction = DIRECTIONS.STILL;
+                    this.current_direction = {up:false, left:false, right:false}
+                    // this.current_direction.left = false;
                 });
             this.new_line();
             this.key_triggered_button("Move Right", ["l"], () => {
-                    this.current_direction = DIRECTIONS.RIGHT;
-                },
+                    this.current_direction.right = true;
+                }
+                ,
                 undefined,
                 () => {
-                    this.current_direction = DIRECTIONS.STILL;
+                    this.current_direction = {up:false, left:false, right:false}
+                    // this.current_direction.right = false;
+                });
+            this.new_line();
+            this.key_triggered_button("Left jump", ["u"], () => {
+                    this.current_direction.left = true;
+                    this.current_direction.up = true;
+                }
+                ,
+                undefined,
+                () => {
+                    this.current_direction = {up:false, left:false, right:false}
+                    // this.current_direction.right = false;
+                });
+            this.new_line();
+            this.key_triggered_button("Right jump", ["o"], () => {
+                    this.current_direction.right = true;
+                    this.current_direction.up = true;
+                }
+                ,
+                undefined,
+                () => {
+                    this.current_direction = {up:false, left:false, right:false}
+                    // this.current_direction.right = false;
                 });
         }
 
