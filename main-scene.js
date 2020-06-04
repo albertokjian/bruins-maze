@@ -113,10 +113,12 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             this.new_line();
             this.key_triggered_button("Restart", ["m"], () => {
                     this.maze.create_maze();
+                    this.player = this.maze.player;
                 });
             this.new_line();
             this.key_triggered_button("Create New Maze", ["n"], () => {
                     this.maze.create_new_maze();
+                    this.player = this.maze.player;
                 });
         }
 
@@ -131,6 +133,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                 this.maze.zspan = (NUM_WALLS + this.maze.additional_walls) * (WALL_LENGTH + THICKNESS); // left to right in z axis
                 this.maze.xspan = (NUM_WALLS + this.maze.additional_walls) * (WALL_LENGTH + THICKNESS); // down to up in x axis
                 this.maze.create_new_maze();
+                this.player = this.maze.player; // update player accordingly
             }
             this.maze.draw(graphics_state, this.shapes, this.materials);
 
