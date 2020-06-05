@@ -7,8 +7,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                 context.register_scene_component(new Movement_Controls(context, control_box.parentElement.insertCell()));
 
             this.maze = new Maze();
-            context.globals.graphics_state.camera_transform = Mat4.look_at(Vec.of(0, this.maze.camera_location_y, 0), Vec.of(0, 0, 0), Vec.of(0, 0, -1));
-            this.initial_camera_location = Mat4.inverse(context.globals.graphics_state.camera_transform);
+            context.globals.graphics_state.camera_transform = Mat4.inverse(this.maze.camera_matrix);
             const r = context.width / context.height;
             context.globals.graphics_state.projection_transform = Mat4.perspective(Math.PI / 4, r, .1, 1000);
 
@@ -57,12 +56,12 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             }
             this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(1, 1, 1, 1), 100000)];
             // this.player = this.maze.player;
-            this.attached = () => this.initial_camera_location;
+            this.attached = () => this.maze.camera_matrix;
         }
 
         make_control_panel() {
             // Draw the scene's buttons, setup their actions and keyboard shortcuts, and monitor live measurements.
-            this.key_triggered_button("View entire maze", ["0"], () => this.attached = () => this.initial_camera_location);
+            this.key_triggered_button("View entire maze", ["0"], () => this.attached = () => this.maze.camera_matrix);
             this.new_line();
             this.key_triggered_button("View player", ["1"], () => this.attached = () => this.maze.player.model_transform.times(Mat4.translation([0, 20, 0]).times(Mat4.rotation(3 * Math.PI / 2, Vec.of(1, 0, 0)))));
             this.new_line();
