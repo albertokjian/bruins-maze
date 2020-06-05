@@ -1,15 +1,12 @@
 window.Maze = window.classes.Maze =
     class Maze {
         // TODO randomly generate this maze
-        constructor() {
+        constructor(message) {
             // make sure number of horizontal walls = zspan / (wall_length + thickness)
             this.thickness = THICKNESS;
             this.wall_length = WALL_LENGTH; // how long is each wall
-            this.zspan = NUM_WALLS * (WALL_LENGTH + THICKNESS); // left to right in z axis
-            this.xspan = NUM_WALLS * (WALL_LENGTH + THICKNESS); // down to up in x axis
+            this.num_walls = NUM_WALLS;
             this.yspan = THICKNESS; // from y = 0 to out of page in y axis
-            // how far are nodes to each other without scaling
-            this.dim = Math.max(this.zspan, this.xspan);
             this.seperation = this.wall_length + this.thickness;
             this.additional_walls = 0; // for level progression, make maze larger
             // S is start, E is end, X is wall
@@ -31,12 +28,29 @@ window.Maze = window.classes.Maze =
             this.player;
             this.endbox;
             this.create_new_maze();
+        }
 
+        create_message_maze() {
+            this.walls = [];
+            this.num_walls = 13;
+            this.zspan = 13 * (WALL_LENGTH + THICKNESS); // left to right in z axis
+            this.xspan = 13 * (WALL_LENGTH + THICKNESS); // down to up in x axis
+            this.camera_location_y = 5 + 4/3 * this.zspan;
+            let m = Mat4.look_at(Vec.of(0, this.camera_location_y, 0), Vec.of(0, 0, 0), Vec.of(0, 0, -1));
+            this.camera_matrix = Mat4.inverse(m);
+            this.layout = MESSAGE;
+            this.create_maze();
         }
 
         create_new_maze() {
             this.walls = [];
-            this.layout = display_maze(generate_maze(NUM_WALLS + this.additional_walls, NUM_WALLS + this.additional_walls));
+            this.num_walls = NUM_WALLS + this.additional_walls;
+            this.zspan = this.num_walls * (WALL_LENGTH + THICKNESS); // left to right in z axis
+            this.xspan = this.num_walls * (WALL_LENGTH + THICKNESS); // down to up in x axis
+            this.camera_location_y = 5 + 4/3 * this.zspan;
+            let m = Mat4.look_at(Vec.of(0, this.camera_location_y, 0), Vec.of(0, 0, 0), Vec.of(0, 0, -1));
+            this.camera_matrix = Mat4.inverse(m);
+            this.layout = display_maze(generate_maze(this.num_walls, this.num_walls));
             this.create_maze();
         }
 
