@@ -40,16 +40,19 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     specularity: .6,
                     gouraud: true,
                 }),
-                endbox: context.get_instance(Phong_Shader).material(Color.of(0, 1, 0, .4), {
-                    ambient: 1,
-                    diffusivity: 1,
-                    specularity: 1,
-                    gouraud: true,
-                })
+                // endbox: context.get_instance(Phong_Shader).material(Color.of(1,1,1,1), {
+                //     ambient: 1,
+                // })
+                endbox: context.get_instance(Phong_Shader).material(
+                    Color.of(0, 0, 0, 1), {
+                        ambient: 1,
+                        texture: context.get_instance("assets/ucla2020.png", true)
+                    }
+                )
             };
             // this.current_direction = DIRECTIONS.STILL;
             this.current_direction = {up:false, left:false, right:false}
-            this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(.5, 1, 0, 1), 100000)];
+            this.lights = [new Light(Vec.of(0, 0, 0, 1), Color.of(1, 1, 1, 1), 100000)];
             this.player = this.maze.player;
             this.attached = () => this.initial_camera_location;
         }
@@ -127,7 +130,7 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
             const t = graphics_state.animation_time / 1000,
                 // dt = graphics_state.animation_delta_time / 1000;
                 dt = 1/FPS;
-            this.shapes.axis.draw(graphics_state, MODEL_TRANSFORM.times(Mat4.translation([0, 10, 0])).times(Mat4.scale([1,1,-1])), this.materials.player);
+            // this.shapes.axis.draw(graphics_state, MODEL_TRANSFORM.times(Mat4.translation([0, 10, 0])).times(Mat4.scale([1,1,-1])), this.materials.player);
             if(this.maze.update_player(this.current_direction, dt)) { // level complete
                 this.maze.additional_walls++;
                 this.maze.zspan = (NUM_WALLS + this.maze.additional_walls) * (WALL_LENGTH + THICKNESS); // left to right in z axis

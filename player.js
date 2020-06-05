@@ -73,7 +73,7 @@ window.Player = window.classes.Player =
             }
             this.on_top_surface = is_on_surface;
             this.update_player_location(dt);
-            return this.resolve_check_box_collision(endbox,dt) != COLLISIONS.STILL;
+            return CircleRect(this.position.x, this.position.z, this.radius, endbox)[0];
         }
 
         // every game_object has aabb

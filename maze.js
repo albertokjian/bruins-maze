@@ -60,7 +60,7 @@ window.Maze = window.classes.Maze =
                             this.player = new Player(x, z);
                             break;
                         case 'E':
-                            this.endbox = new Box(this.wall_length, this.yspan, this.wall_length, 0, x, 0, z);
+                            this.endbox = new Box(this.wall_length, this.yspan, this.wall_length, Math.PI, x, 0, z);
                             break;
                     }
                 }
