@@ -20,8 +20,8 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
 
             // Make some Material objects available to you:
             this.materials = {
-                floor: context.get_instance(Phong_Shader).material(Color.of(1, .5, .5, 1), {
-                    ambient: .4,
+                floor: context.get_instance(Phong_Shader).material(Color.of(0.156, 0.453, 0.679, 1), {
+                    ambient: 1,
                     diffusivity: .7,
                     specular: 1.,
                     gouraud: true,
@@ -32,8 +32,8 @@ window.Trapped_Maze_Scene = window.classes.Trapped_Maze_Scene =
                     specular: .5,
                     gouraud: true,
                 }),
-                wall: context.get_instance(Phong_Shader).material(Color.of(1, 1, 1, 1), {
-                    ambient: .1,
+                wall: context.get_instance(Phong_Shader).material(Color.of(1, 0.695, 0, 1), {
+                    ambient: 1,
                     diffusivity: .1,
                     specularity: .6,
                     gouraud: true,

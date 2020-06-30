@@ -32,9 +32,9 @@ window.Maze = window.classes.Maze =
 
         create_message_maze() {
             this.walls = [];
-            this.num_walls = 13;
+            this.num_walls = 14;
             this.zspan = 13 * (WALL_LENGTH + THICKNESS); // left to right in z axis
-            this.xspan = 13 * (WALL_LENGTH + THICKNESS); // down to up in x axis
+            this.xspan = 14 * (WALL_LENGTH + THICKNESS); // down to up in x axis
             this.camera_location_y = 5 + 4/3 * this.zspan;
             let m = Mat4.look_at(Vec.of(0, this.camera_location_y, 0), Vec.of(0, 0, 0), Vec.of(0, 0, -1));
             this.camera_matrix = Mat4.inverse(m);
@@ -89,7 +89,7 @@ window.Maze = window.classes.Maze =
             // create a floor to have the maze on 
             let floor_model_transform = MODEL_TRANSFORM;
             floor_model_transform = floor_model_transform.times(Mat4.translation([0, -1 / 2, 0]));
-            floor_model_transform = floor_model_transform.times(Mat4.scale([this.zspan / 2, 1 / 2, this.xspan / 2]));
+            floor_model_transform = floor_model_transform.times(Mat4.scale([this.xspan / 2, 1 / 2, this.zspan / 2]));
             shapes.wall.draw(graphics_state, floor_model_transform, materials.floor);
 
             for (let wall of this.walls) {

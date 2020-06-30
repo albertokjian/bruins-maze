@@ -1,5 +1,6 @@
-# Trapped!
-
+# Bruins Maze by Team Trapped
+### Demo
+![Bruins Maze Demo](demo.gif)
 ### Installation/Set-Up
 1. Clone this repository: `git clone https://github.com/intro-graphics/team-project-trapped.git`
 2. Start up the server.
